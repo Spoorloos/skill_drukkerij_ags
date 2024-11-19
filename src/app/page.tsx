@@ -1,4 +1,14 @@
-export default function Home() {
+"use server";
+
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+export default async function Home() {
+    const { data, error } = await supabase
+        .from("test")
+        .select();
+
     return (
         <main>
             <table className="w-1/2 border-collapse border border-black table-fixed">
@@ -20,6 +30,12 @@ export default function Home() {
                     <td className="border border-black">Mexico</td>
                 </tr>
             </table>
+
+            {error ? (
+                <strong className="text-red-600">Failed to get data from database</strong>
+            ) : data.map(row => {
+                return <p key={row.id!}>{row.title!}</p>
+            })}
         </main>
     );
 }
