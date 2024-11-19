@@ -4,6 +4,6 @@
 
 @layer components {
     .nav-item {
-        @apply inline-block p-2 hover:bg-black hover:text-white;
+        @apply inline-block p-2 hover:bg-white hover:text-black;
     }
 }
