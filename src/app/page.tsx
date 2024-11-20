@@ -24,27 +24,28 @@ export default async function Home() {
                 <table className="w-1/2 border-collapse border border-black table-fixed">
                     <thead>
                         <tr className="border border-black">
-                            <th className="border border-black">Monday</th>
-                            <th className="border border-black">Tuesday</th>
-                            <th className="border border-black">Wednesday</th>
-                            <th className="border border-black">Thursday</th>
-                            <th className="border border-black">Friday</th>
+                            <th className="p-4 border border-black">Monday</th>
+                            <th className="p-4 border border-black">Tuesday</th>
+                            <th className="p-4 border border-black">Wednesday</th>
+                            <th className="p-4 border border-black">Thursday</th>
+                            <th className="p-4 border border-black">Friday</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr className="border border-black">
-                            <td className="border border-black"></td>
-                            <td className="border border-black"></td>
-                            <td className="border border-black">Germany</td>
-                            <td className="border border-black">Germany</td>
-                            <td className="border border-black">Germany</td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
                         </tr>
                         <tr className="border border-black">
-                            <td className="border border-black">Centro comercial Moctezuma 09:00</td>
-                            <td className="border border-black"></td>
-                            <td className="border border-black">Mexico</td>
-                            <td className="border border-black">Mexico</td>
-                            <td className="border border-black">Francisco Chang</td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+
                         </tr>
                     </tbody>
                 </table>
