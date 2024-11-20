@@ -1,22 +1,27 @@
 "use server";
 
-import { createClient } from "@supabase/supabase-js";
+import PageList from "@/components/PageList";
+// import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+// const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
 export default async function Home() {
-    const { data, error } = await supabase
-        .from("calendar")
-        .select()
-        .lt("start_time", "19:00:00");
-
-
-    if (error) console.error(error);
-
     return (
         <main className="p-8 pb-0 space-y-8">
-            <section>
-                <table className="border-collapse border border-black table-fixed">
+            <PageList pages={{
+                "Inloggen": <section>
+                    <p>Test</p>
+                </section>,
+                "Maak je afspraak": <section>
+                    <p>Test 2</p>
+                </section>,
+                "Afgerond": <section>
+                    <p>We hebben je afspraak ingeplant en we verwachten je ... om ... uur bij ...!</p>
+                </section>
+            }}/>
+
+            {/* <section>
+                <table className="w-1/2 border-collapse border border-black table-fixed">
                     <thead>
                         <tr className="border border-black">
                             <th className="p-4 border border-black">Monday</th>
@@ -44,22 +49,7 @@ export default async function Home() {
                         </tr>
                     </tbody>
                 </table>
-            </section>
-
-
-
-            <section>
-                <h2 className="font-bold">Database:</h2>
-                {error ? (
-                    <strong className="text-red-600">Failed to get data from database</strong>
-                ) : (
-                    <ul className="list-inside list-disc">
-                        {data.map(row =>
-                            <li key={row.id!}>{row.title!}</li>
-                        )}
-                    </ul>
-                )}
-            </section>
+            </section> */}
         </main>
     );
 }
