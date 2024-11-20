@@ -6,40 +6,48 @@ const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SE
 
 export default async function Home() {
     const { data, error } = await supabase
-        .from("test")
-        .select();
+        .from("calendar")
+        .select()
+        .lt("start_time", "19:00:00");
+
+
+    if (error) console.error(error);
 
     return (
         <main className="p-8 pb-0 space-y-8">
             <section>
-                <table className="w-1/2 border-collapse border border-black table-fixed">
+                <table className="border-collapse border border-black table-fixed">
                     <thead>
                         <tr className="border border-black">
-                            <th className="border border-black">Monday</th>
-                            <th className="border border-black">Tuesday</th>
-                            <th className="border border-black">Wednesday</th>
-                            <th className="border border-black">Thursday</th>
-                            <th className="border border-black">Friday</th>
+                            <th className="p-4 border border-black">Monday</th>
+                            <th className="p-4 border border-black">Tuesday</th>
+                            <th className="p-4 border border-black">Wednesday</th>
+                            <th className="p-4 border border-black">Thursday</th>
+                            <th className="p-4 border border-black">Friday</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr className="border border-black">
-                            <td className="border border-black"></td>
-                            <td className="border border-black"></td>
-                            <td className="border border-black">Germany</td>
-                            <td className="border border-black">Germany</td>
-                            <td className="border border-black">Germany</td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
                         </tr>
                         <tr className="border border-black">
-                            <td className="border border-black">Centro comercial Moctezuma 09:00</td>
-                            <td className="border border-black"></td>
-                            <td className="border border-black">Mexico</td>
-                            <td className="border border-black">Mexico</td>
-                            <td className="border border-black">Francisco Chang</td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+                            <td className="p-4 border border-black"></td>
+
                         </tr>
                     </tbody>
                 </table>
             </section>
+
+
+
             <section>
                 <h2 className="font-bold">Database:</h2>
                 {error ? (
