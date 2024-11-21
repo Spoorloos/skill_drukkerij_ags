@@ -2,52 +2,75 @@
 
 import { appointmentSubmit } from "@/lib/actions";
 import { useActionState } from "react";
+import { useState } from "react";
+import { redirect } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/datepicker";
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
+import { getAppointmentTimes } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 export default function Appointment() {
-    const [formState, formAction, isPending] = useActionState(appointmentSubmit, null);
+    const [date, setDate] = useState<Date | undefined>(new Date());
+    const [formState, formAction, isPending] = useActionState(appointmentSubmit, {
+        message: undefined,
+        status: -1,
+    });
+
+    if (formState.status === 1) {
+        setTimeout(() => redirect("/"), 2000);
+    }
 
     return (
-        <main className="flex p-8 items-center flex-col">
-            <h1 className="font-bold text-xl">Appointment</h1>
+        <main className="flex flex-col items-center gap-8 p-8">
+            <h1 className="text-3xl font-bold">Maak een afspraak</h1>
             <form className="flex gap-4 flex-col w-[clamp(10rem,70vw,30rem)]" action={formAction}>
-                <label htmlFor="subject">Subject</label>
-                <input className="p-1 border-2 border-blue-300 rounded-lg" id="subject" name="subject" type="text" required />
+                <label htmlFor="subject">Onderwerp</label>
+                <Input id="subject" name="subject" placeholder="Bijvoorbeeld: Poster 50x70cm" maxLength={50} required/>
 
+                <label htmlFor="description">Beschrijving</label>
+                <Textarea id="description" name="description" placeholder="Leg uitgebreid uit wat je wilt afdrukken" maxLength={1000} required/>
 
-                <label htmlFor="description">Description</label>
-                <textarea className="p-1 rounded-lg h-40 border-2 border-blue-300" id="description" name="description" />
-
-                <label htmlFor="people_to_add">People to add:</label>
-                <input className="p-1 rounded-lg border-2 border-blue-300" id="people_to_add" type="text" name="people_to_add" />
-
-                <label htmlFor="add_everyone">add everyone:</label>
-                <input id="add_everyone" className="w-5 h-5" type="checkbox" name="add_everyone" />
-
-                <div className="flex justify-between">
-                    <div className="flex flex-col">
-                        <label htmlFor="date">Date</label>
-                        <input className="w-[clamp(0.1rem,20vw,8rem)] p-1 rounded-lg border-2 border-blue-300" id="date" type="date" name="date" required />
+                <label className="block">Dag en tijd</label>
+                <div className="flex gap-4">
+                    <div className="flex-1">
+                        <DatePicker date={date} setDate={setDate} fromDate={new Date()}/>
+                        <input name="date" type="date" value={date?.toLocaleDateString("en-CA")} readOnly hidden/>
                     </div>
-
-                    <div className="flex flex-col">
-                        <label htmlFor="start_time">start Time</label>
-                        <input className="w-[clamp(0.1rem,20vw,8rem)] p-1 rounded-lg border-2 border-blue-300" id="start_time" name="start_time" type="time" required />
-
+                    <div className="flex-1">
+                        <Select name="time" required>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a time"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {getAppointmentTimes(date!, 9, 16, 15).map((time, index) =>
+                                    <SelectItem value={time.toLocaleTimeString("nl-NL")} key={index}>
+                                        {time.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                                    </SelectItem>
+                                )}
+                            </SelectContent>
+                        </Select>
                     </div>
-
-                    <div className="flex flex-col">
-                        <label htmlFor="end_time">end Time</label>
-                        <input className="w-[clamp(0.1rem,20vw,8rem)] p-1 rounded-lg border-2 border-blue-300" id="end_time" name="end_time" type="time" required />
-                    </div>
-
                 </div>
 
+                {formState.status !== -1 &&
+                    <p className={formState.status === 0 ? "text-red-500" : ""}>{formState.message}</p>
+                }
 
-                <label htmlFor="location">Location</label>
-                <input className="p-1 rounded-lg border-2 border-blue-300" id="location" name="location" type="text" />
-
-                {formState !== null && <p className="font-bold">{formState}</p>}
-                <button type="submit" className="p-3 rounded-lg bg-blue-300 disabled:opacity-50" disabled={isPending}>appoint</button>
+                <div className="text-end">
+                    <Button type="submit" className="font-bold" disabled={isPending}>
+                        {isPending && <Loader2 className="animate-spin"/>}
+                        Maak een afspraak
+                    </Button>
+                </div>
             </form>
         </main>
     );
