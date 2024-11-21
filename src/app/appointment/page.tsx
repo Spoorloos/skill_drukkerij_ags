@@ -40,7 +40,7 @@ export default function Appointment() {
                 <Textarea id="description" name="description" placeholder="Leg uitgebreid uit wat je wilt afdrukken" maxLength={1000} required/>
 
                 <label className="block">Dag en tijd</label>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                     <div className="flex-1">
                         <DatePicker date={date} setDate={setDate} fromDate={new Date()}/>
                         <input name="date" type="date" value={date?.toLocaleDateString("en-CA")} readOnly hidden/>
@@ -48,7 +48,7 @@ export default function Appointment() {
                     <div className="flex-1">
                         <Select name="time" required>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select a time"/>
+                                <SelectValue placeholder="Selecteer een tijd"/>
                             </SelectTrigger>
                             <SelectContent>
                                 {getAppointmentTimes(date!, 9, 16, 15).map((time, index) =>
@@ -66,7 +66,7 @@ export default function Appointment() {
                 }
 
                 <div className="text-end">
-                    <Button type="submit" className="font-bold" disabled={isPending}>
+                    <Button type="submit" className="font-semibold" disabled={isPending}>
                         {isPending && <Loader2 className="animate-spin"/>}
                         Maak een afspraak
                     </Button>
