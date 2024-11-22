@@ -19,12 +19,9 @@ import {
 } from "@/components/ui/select";
 
 export default function Appointment() {
-    const { data: session } = useSession();
-    if (!session || !session.user) {
-        redirect("/inloggen");
-    }
-
+    const session = useSession();
     const [date, setDate] = useState<Date | undefined>(new Date());
+    const [times, setTimes] = useState<string[]>();
     const [formState, formAction, isPending] = useActionState(appointmentSubmit, {
         message: undefined,
         status: -1,
@@ -34,13 +31,17 @@ export default function Appointment() {
         setTimeout(() => redirect("/"), 2000);
     }
 
-    const [times, setTimes] = useState<string[]>();
-
     useEffect(() => {
         if (date) {
             getAppointmentTimes(date).then(setTimes);
         }
     }, [date]);
+
+    useEffect(() => {
+        if (session.status !== "loading" && !session.data) {
+            redirect("/inloggen");
+        }
+    }, []);
 
     return (
         <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 p-8">
@@ -68,7 +69,7 @@ export default function Appointment() {
                                 </SelectTrigger>
                                 {times && <SelectContent>
                                     {times.map((time, index) =>
-                                        <SelectItem value={time} key={index}>{time}</SelectItem>
+                                        <SelectItem value={time} key={index}>{time.slice(0,5)}</SelectItem>
                                     )}
                                 </SelectContent>}
                             </Select>
