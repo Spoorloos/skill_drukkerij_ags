@@ -11,6 +11,7 @@ const authSchema = z.object({
 });
 
 export default {
+    secret: process.env.AUTH_SECRET,
     providers: [
         CredentialsProvider({
             name: "Credentials",
@@ -73,5 +74,5 @@ export default {
     },
     pages: {
         signIn: "/inloggen"
-    }
+    },
 }
