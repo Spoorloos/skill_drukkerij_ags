@@ -5,19 +5,6 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-export function getAppointmentTimes(date: Date, start: number, end: number, increment: number) {
-    const appointmentTimes = [];
-    const dateCloned = new Date(date);
-    const now = new Date();
-
-    dateCloned.setHours(start, 0, 0, 0);
-
-    while (dateCloned.getHours() < end) {
-        if (dateCloned > now) {
-            appointmentTimes.push(new Date(dateCloned));
-        }
-        dateCloned.setMinutes(dateCloned.getMinutes() + increment);
-    }
-
-    return appointmentTimes;
+export function dateToString(date: Date) {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 }

@@ -2,6 +2,9 @@
 
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
+import { getServerSession, Session } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { dateToString } from "@/lib/utils";
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const appointmentSchema = z.object({
@@ -21,6 +24,15 @@ export async function appointmentSubmit(
     formData: FormData
 ): Promise<ActionResult> {
     "use server";
+
+    // Get session
+    const session: Session | null = await getServerSession(authOptions);
+    if (!session || !session.user) {
+        return {
+            message: "Je bent niet ingelogt",
+            status: 0,
+        }
+    }
 
     // Validate form data with zod
     const { data, success } = appointmentSchema.safeParse({
@@ -42,10 +54,8 @@ export async function appointmentSubmit(
         .from("appointment")
         .insert({
             ...data,
-            user: "2"
+            user: session.user.id,
         });
-
-    console.log(error);
 
     return error ?
         {
@@ -56,4 +66,19 @@ export async function appointmentSubmit(
             message: "We hebben je afspraak geregistreerd!",
             status: 1
         };
+}
+
+export async function getAppointmentTimes(date: Date): Promise<string[]> {
+    "use server";
+
+    const result = await supabase.rpc("get_available_times", {
+        input_date: dateToString(date),
+        now: dateToString(new Date()),
+    });
+
+    if (result.error || !result.data) {
+        return [];
+    }
+
+    return result.data.map((x: any) => x.available_time);
 }
