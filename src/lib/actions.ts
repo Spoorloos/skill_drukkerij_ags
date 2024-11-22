@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import { getServerSession, Session } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import authOptions from "@/app/api/auth/authOptions";
 import { dateToString } from "@/lib/utils";
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
