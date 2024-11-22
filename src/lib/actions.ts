@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getServerSession, Session } from "next-auth";
 import authOptions from "@/app/api/auth/authOptions";
 import { dateToString } from "@/lib/utils";
+import { redirect } from "next/navigation";
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const appointmentSchema = z.object({
@@ -15,12 +16,12 @@ const appointmentSchema = z.object({
 });
 
 type ActionResult = {
-    message: string | undefined;
+    message?: string | undefined;
     status: number;
 }
 
 export async function appointmentSubmit(
-    _: ActionResult,
+    _: ActionResult | null,
     formData: FormData
 ): Promise<ActionResult> {
     "use server";
@@ -81,4 +82,43 @@ export async function getAppointmentTimes(date: Date): Promise<string[]> {
     }
 
     return result.data.map((x: any) => x.available_time);
+}
+
+const signupSchema = z.object({
+    name: z.string().max(50),
+    email: z.string().email().max(75),
+    password: z.string().max(50),
+});
+
+export async function signupAction(
+    _: ActionResult | null,
+    formData: FormData
+): Promise<ActionResult> {
+    "use server";
+
+    const { data, success } = signupSchema.safeParse({
+        name: formData.get("name"),
+        email: formData.get("email"),
+        password: formData.get("password"),
+    });
+
+    if (!success) {
+        return {
+            message: "Er is iets mis met de ontvangen data!",
+            status: 0,
+        }
+    }
+
+    const { error } = await supabase
+        .from("user")
+        .insert(data);
+
+    if (error) {
+        return {
+            message: "We konden je account niet aanmaken.",
+            status: 0,
+        }
+    }
+
+    redirect("/inloggen");
 }

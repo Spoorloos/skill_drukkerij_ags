@@ -22,12 +22,9 @@ export default function Appointment() {
     const session = useSession();
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [times, setTimes] = useState<string[]>();
-    const [formState, formAction, isPending] = useActionState(appointmentSubmit, {
-        message: undefined,
-        status: -1,
-    });
+    const [result, formAction, isPending] = useActionState(appointmentSubmit, null);
 
-    if (formState.status === 1) {
+    if (result?.status === 1) {
         setTimeout(() => redirect("/"), 2000);
     }
 
@@ -76,11 +73,9 @@ export default function Appointment() {
                         </div>
                     </div>
                 </div>
-
-                {formState.status !== -1 &&
-                    <p className={formState.status === 0 ? "text-red-500" : ""}>{formState.message}</p>
+                {result &&
+                    <p className={result.status === 0 ? "text-red-500" : ""}>{result.message}</p>
                 }
-
                 <div className="text-end">
                     <Button type="submit" className="font-semibold" disabled={isPending}>
                         {isPending && <Loader2 className="animate-spin"/>}

@@ -18,7 +18,7 @@ export default function Header() {
                 {session?.user ? <>
                     <Button className="font-semibold" onClick={() => signOut()}>Uitloggen</Button>
                 </> : <>
-                    <Link className={buttonVariants({ variant: "outline" })} href="#">Registreren</Link>
+                    <Link className={buttonVariants({ variant: "outline" })} href="/aanmelden">Aanmelden</Link>
                     <Link className={buttonVariants({ variant: "default" }) + " font-semibold"} href="/inloggen">Inloggen</Link>
                 </>}
             </nav>
