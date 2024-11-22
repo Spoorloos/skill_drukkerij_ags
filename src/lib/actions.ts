@@ -70,13 +70,15 @@ export async function appointmentSubmit(
         };
 }
 
-export async function getAppointmentTimes(date: Date): Promise<string[]> {
+export async function getAppointmentTimes(date: Date, now: Date): Promise<string[]> {
     "use server";
 
     const result = await supabase.rpc("get_available_times", {
         input_date: dateToString(date),
-        now: dateToString(new Date()),
+        now: dateToString(now),
     });
+
+    console.log(result);
 
     if (result.error || !result.data) {
         return [];

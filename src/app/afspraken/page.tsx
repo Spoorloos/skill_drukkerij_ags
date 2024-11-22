@@ -30,7 +30,7 @@ export default function Appointment() {
 
     useEffect(() => {
         if (date) {
-            getAppointmentTimes(date).then(setTimes);
+            getAppointmentTimes(date, new Date()).then(setTimes);
         }
     }, [date]);
 
