@@ -1,3 +1,6 @@
+import Test from '../components/ui/fred_calendar';
+
+
 export default function Home() {
     return (
         <main className="p-8 pb-0 space-y-8">
@@ -14,36 +17,15 @@ export default function Home() {
             }}/> */}
 
 
-<section>
+            <section>
                 <h2 className="pb-4 text-xl font-bold">Schedule</h2>
-
-                <ol className="flex">
-                <li>
+                <Test></Test>
+                {/* <ol className="flex">
+                    <li>
                         <article className="p-4 bg-blue-100">
                             <h4 className="text-lg font-bold">monday</h4>
                             <ol className="space-y-5">
-                                <li>
-                                    <article className="max-w-sm p-6 mx-auto bg-white rounded-lg shadow-md">
-                                        <h4 className="mb-4 text-xl font-bold text-center text-gray-800">Pizza Party</h4>
-                                        <p className="mb-2 text-sm text-gray-600">
-                                            <span className="font-semibold">Time: </span><time>10:00 - 12:00</time>
-                                        </p>
-                                        <p className="text-sm text-gray-600">
-                                            <span className="font-semibold">Description:</span> Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                        </p>
-                                    </article>
-                                </li>
-                                <li>
-                                    <article className="max-w-sm p-6 mx-auto bg-white rounded-lg shadow-md">
-                                        <h4 className="mb-4 text-xl font-bold text-center text-gray-800">Pizza Party</h4>
-                                        <p className="mb-2 text-sm text-gray-600">
-                                            <span className="font-semibold">Time: </span><time>12:00 - 14:00</time>
-                                        </p>
-                                        <p className="text-sm text-gray-600">
-                                            <span className="font-semibold">Description:</span> Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                        </p>
-                                    </article>
-                                </li>
+                                <Test></Test>
                             </ol>
                         </article>
                     </li>
@@ -119,7 +101,7 @@ export default function Home() {
                             </ol>
                         </article>
                     </li>
-                </ol>
+                </ol> */}
             </section>
         </main>
     );
