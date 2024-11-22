@@ -1,6 +1,7 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
+import { verify } from "argon2";
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
@@ -32,10 +33,22 @@ export default {
                 const { data, error } = await supabase
                     .from("user")
                     .select()
-                    .eq("email", input.email)
-                    .eq("password", input.password);
+                    .eq("email", input.email);
 
-                return error ? null : data[0];
+                if (error) {
+                    return null;
+                }
+
+                // Check password and return user
+                const user = data[0];
+                try {
+                    if (await verify(user.password, input.password)) {
+                        return user;
+                    }
+                    return null;
+                } catch {
+                    return null;
+                }
             },
         }),
     ],

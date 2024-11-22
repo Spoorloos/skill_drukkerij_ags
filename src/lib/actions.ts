@@ -6,6 +6,7 @@ import { getServerSession, Session } from "next-auth";
 import authOptions from "@/app/api/auth/authOptions";
 import { dateToString } from "@/lib/utils";
 import { redirect } from "next/navigation";
+import { hash } from "argon2";
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const appointmentSchema = z.object({
@@ -111,7 +112,10 @@ export async function signupAction(
 
     const { error } = await supabase
         .from("user")
-        .insert(data);
+        .insert({
+            ...data,
+            password: await hash(data.password),
+        });
 
     if (error) {
         return {
