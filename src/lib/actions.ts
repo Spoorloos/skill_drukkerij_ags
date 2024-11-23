@@ -5,8 +5,11 @@ import { createClient } from "@supabase/supabase-js";
 import { getServerSession, Session } from "next-auth";
 import authOptions from "@/app/api/auth/authOptions";
 import { dateToString } from "@/lib/utils";
+import { redirect } from "next/navigation";
+import { hash } from "argon2";
+import { type Database } from "@/../database.types";
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const appointmentSchema = z.object({
     subject: z.string().max(50),
     description: z.string().max(1000),
@@ -15,12 +18,12 @@ const appointmentSchema = z.object({
 });
 
 type ActionResult = {
-    message: string | undefined;
+    message?: string | undefined;
     status: number;
 }
 
 export async function appointmentSubmit(
-    _: ActionResult,
+    _: ActionResult | null,
     formData: FormData
 ): Promise<ActionResult> {
     "use server";
@@ -54,7 +57,7 @@ export async function appointmentSubmit(
         .from("appointment")
         .insert({
             ...data,
-            user: session.user.id,
+            user: session.user.id!,
         });
 
     return error ?
@@ -68,12 +71,12 @@ export async function appointmentSubmit(
         };
 }
 
-export async function getAppointmentTimes(date: Date): Promise<string[]> {
+export async function getAppointmentTimes(date: Date, now: Date): Promise<string[]> {
     "use server";
 
     const result = await supabase.rpc("get_available_times", {
         input_date: dateToString(date),
-        now: dateToString(new Date()),
+        now: dateToString(now),
     });
 
     if (result.error || !result.data) {
@@ -81,4 +84,46 @@ export async function getAppointmentTimes(date: Date): Promise<string[]> {
     }
 
     return result.data.map((x: any) => x.available_time);
+}
+
+const signupSchema = z.object({
+    name: z.string().max(50),
+    email: z.string().email().max(75),
+    password: z.string().max(50),
+});
+
+export async function signupAction(
+    _: ActionResult | null,
+    formData: FormData
+): Promise<ActionResult> {
+    "use server";
+
+    const { data, success } = signupSchema.safeParse({
+        name: formData.get("name"),
+        email: formData.get("email"),
+        password: formData.get("password"),
+    });
+
+    if (!success) {
+        return {
+            message: "Er is iets mis met de ontvangen data!",
+            status: 0,
+        }
+    }
+
+    const { error } = await supabase
+        .from("user")
+        .insert({
+            ...data,
+            password: await hash(data.password),
+        });
+
+    if (error) {
+        return {
+            message: "We konden je account niet aanmaken.",
+            status: 0,
+        }
+    }
+
+    redirect("/inloggen");
 }
