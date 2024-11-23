@@ -46,8 +46,8 @@ export default async function Schedule() {
                                 .sort((a, b) => a.start_time.localeCompare(b.start_time))
 
                                 //places the appointments
-                                .map((appointment, index) =>
-                                    <li key={index}>
+                                .map(appointment =>
+                                    <li key={appointment.id}>
                                         <article className="w-full p-6 mx-auto bg-white rounded-lg shadow-md">
                                             <h4 className="mb-4 text-xl font-bold text-center text-gray-800">{appointment.subject}</h4>
                                             <p className="mb-2 text-sm text-gray-600">

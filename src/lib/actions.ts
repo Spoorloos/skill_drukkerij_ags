@@ -7,7 +7,7 @@ import authOptions from "@/app/api/auth/authOptions";
 import { dateToString } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { hash } from "argon2";
-import { type Database } from "@/../database.types";
+import { type Database } from "@/../database";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const appointmentSchema = z.object({
@@ -15,6 +15,7 @@ const appointmentSchema = z.object({
     description: z.string().max(1000),
     date: z.string().date(),
     time: z.string().time(),
+    user: z.number().nonnegative(),
 });
 
 type ActionResult = {
@@ -26,8 +27,6 @@ export async function appointmentSubmit(
     _: ActionResult | null,
     formData: FormData
 ): Promise<ActionResult> {
-    "use server";
-
     // Get session
     const session: Session | null = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -43,6 +42,7 @@ export async function appointmentSubmit(
         description: formData.get("description"),
         date: formData.get("date"),
         time: formData.get("time"),
+        user: session.user.id!,
     });
 
     if (!success) {
@@ -55,10 +55,7 @@ export async function appointmentSubmit(
     // Insert appointment into database with supabase
     const { error } = await supabase
         .from("appointment")
-        .insert({
-            ...data,
-            user: session.user.id!,
-        });
+        .insert(data);
 
     return error ?
         {
@@ -72,8 +69,6 @@ export async function appointmentSubmit(
 }
 
 export async function getAppointmentTimes(date: Date, now: Date): Promise<string[]> {
-    "use server";
-
     const result = await supabase.rpc("get_available_times", {
         input_date: dateToString(date),
         now: dateToString(now),
@@ -96,8 +91,6 @@ export async function signupAction(
     _: ActionResult | null,
     formData: FormData
 ): Promise<ActionResult> {
-    "use server";
-
     const { data, success } = signupSchema.safeParse({
         name: formData.get("name"),
         email: formData.get("email"),
