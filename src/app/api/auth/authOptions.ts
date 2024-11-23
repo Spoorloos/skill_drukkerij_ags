@@ -2,9 +2,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import { verify } from "argon2";
+import { type Database } from "@/../database.types";
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-
+const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const authSchema = z.object({
     email: z.string().email().max(75),
     password: z.string().max(50),
@@ -31,7 +31,7 @@ export default {
                 }
 
                 // Get user from database
-                const { data, error } = await supabase
+                const { data: users, error } = await supabase
                     .from("user")
                     .select()
                     .eq("email", input.email);
@@ -41,21 +41,24 @@ export default {
                 }
 
                 // Check password and return user
-                const user = data[0];
-                try {
-                    if (await verify(user.password, input.password)) {
-                        return user;
-                    }
+                const user = users.find(async (user) => {
+                    return await verify(user.password, input.password);
+                });
+
+                if (!user) {
                     return null;
-                } catch {
-                    return null;
+                }
+
+                return {
+                    ...user,
+                    id: user.id.toString(),
                 }
             },
         }),
     ],
     callbacks: {
         session: async ({ session, token }: any) => {
-            if (session?.user && token) {
+            if (session && token) {
                 session.user = token.user;
             }
             return session;

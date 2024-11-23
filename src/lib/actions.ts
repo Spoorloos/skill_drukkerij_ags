@@ -7,8 +7,9 @@ import authOptions from "@/app/api/auth/authOptions";
 import { dateToString } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { hash } from "argon2";
+import { type Database } from "@/../database.types";
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const appointmentSchema = z.object({
     subject: z.string().max(50),
     description: z.string().max(1000),
@@ -56,7 +57,7 @@ export async function appointmentSubmit(
         .from("appointment")
         .insert({
             ...data,
-            user: session.user.id,
+            user: session.user.id!,
         });
 
     return error ?
@@ -77,8 +78,6 @@ export async function getAppointmentTimes(date: Date, now: Date): Promise<string
         input_date: dateToString(date),
         now: dateToString(now),
     });
-
-    console.log(result);
 
     if (result.error || !result.data) {
         return [];
