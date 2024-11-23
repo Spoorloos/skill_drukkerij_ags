@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 
 
@@ -84,5 +85,4 @@ async function Schedule() {
         )
     };
 }
-
 export default Schedule;
