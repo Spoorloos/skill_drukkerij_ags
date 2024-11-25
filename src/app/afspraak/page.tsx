@@ -38,7 +38,7 @@ export default function Appointment() {
         if (session.status !== "loading" && !session.data) {
             redirect("/inloggen");
         }
-    }, []);
+    }, [session]);
 
     return (
         <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 p-8">
