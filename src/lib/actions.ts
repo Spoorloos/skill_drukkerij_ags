@@ -1,9 +1,9 @@
 "use server";
 
 import { createClient } from "@supabase/supabase-js";
-import { getServerSession, Session } from "next-auth";
-import authOptions from "@/app/api/auth/authOptions";
 import { dateToString } from "@/lib/utils";
+import { getServerSession, type Session } from "next-auth";
+import authOptions from "@/app/api/auth/authOptions";
 import { redirect } from "next/navigation";
 import { hash } from "argon2";
 import { type Database } from "@/../database";
@@ -20,9 +20,10 @@ export async function appointmentSubmit(
     _: ActionResult | null,
     formData: FormData
 ): Promise<ActionResult> {
-    // Get session
+    // Get user
     const session: Session | null = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    const user = session?.user;
+    if (!user) {
         return {
             message: "Je bent niet ingelogt",
             status: 0,
@@ -35,7 +36,7 @@ export async function appointmentSubmit(
         description: formData.get("description"),
         date: formData.get("date"),
         time: formData.get("time"),
-        user: session.user.id!,
+        user: user.id,
     });
 
     if (!success) {
