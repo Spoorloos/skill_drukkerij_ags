@@ -1,21 +1,15 @@
 "use server";
 
-import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import { getServerSession, Session } from "next-auth";
 import authOptions from "@/app/api/auth/authOptions";
 import { dateToString } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { hash } from "argon2";
-import { type Database } from "@/../database.types";
+import { type Database } from "@/../database";
+import { appointmentSchema, signupSchema } from "@/lib/schemas";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-const appointmentSchema = z.object({
-    subject: z.string().max(50),
-    description: z.string().max(1000),
-    date: z.string().date(),
-    time: z.string().time(),
-});
 
 type ActionResult = {
     message?: string | undefined;
@@ -26,8 +20,6 @@ export async function appointmentSubmit(
     _: ActionResult | null,
     formData: FormData
 ): Promise<ActionResult> {
-    "use server";
-
     // Get session
     const session: Session | null = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -43,6 +35,7 @@ export async function appointmentSubmit(
         description: formData.get("description"),
         date: formData.get("date"),
         time: formData.get("time"),
+        user: session.user.id!,
     });
 
     if (!success) {
@@ -55,10 +48,7 @@ export async function appointmentSubmit(
     // Insert appointment into database with supabase
     const { error } = await supabase
         .from("appointment")
-        .insert({
-            ...data,
-            user: session.user.id!,
-        });
+        .insert(data);
 
     return error ?
         {
@@ -71,33 +61,10 @@ export async function appointmentSubmit(
         };
 }
 
-export async function getAppointmentTimes(date: Date, now: Date): Promise<string[]> {
-    "use server";
-
-    const result = await supabase.rpc("get_available_times", {
-        input_date: dateToString(date),
-        now: dateToString(now),
-    });
-
-    if (result.error || !result.data) {
-        return [];
-    }
-
-    return result.data.map((x: any) => x.available_time);
-}
-
-const signupSchema = z.object({
-    name: z.string().max(50),
-    email: z.string().email().max(75),
-    password: z.string().max(50),
-});
-
 export async function signupAction(
     _: ActionResult | null,
     formData: FormData
 ): Promise<ActionResult> {
-    "use server";
-
     const { data, success } = signupSchema.safeParse({
         name: formData.get("name"),
         email: formData.get("email"),
@@ -126,4 +93,17 @@ export async function signupAction(
     }
 
     redirect("/inloggen");
+}
+
+export async function getAppointmentTimes(date: Date, now: Date) {
+    const result = await supabase.rpc("get_available_times", {
+        input_date: dateToString(date),
+        now: dateToString(now),
+    });
+
+    if (result.error || !result.data) {
+        return [];
+    }
+
+    return result.data.map(x => x.available_time);
 }

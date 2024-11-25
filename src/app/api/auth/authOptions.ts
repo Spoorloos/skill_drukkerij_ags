@@ -1,14 +1,11 @@
 import CredentialsProvider from "next-auth/providers/credentials";
-import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import { verify } from "argon2";
-import { type Database } from "@/../database.types";
+import { type Database } from "@/../database";
+import { type NextAuthOptions } from "next-auth";
+import { loginSchema } from "@/lib/schemas";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-const authSchema = z.object({
-    email: z.string().email().max(75),
-    password: z.string().max(50),
-});
 
 export default {
     secret: process.env.AUTH_SECRET,
@@ -21,7 +18,7 @@ export default {
             },
             authorize: async (credentials) => {
                 // Validate user input with zod
-                const { data: input, success } = authSchema.safeParse({
+                const { data: input, success } = loginSchema.safeParse({
                     email: credentials?.email,
                     password: credentials?.password
                 });
@@ -45,14 +42,12 @@ export default {
                     return await verify(user.password, input.password);
                 });
 
-                if (!user) {
-                    return null;
+                if (user) {
+                    const { password: _, ...ret } = user;
+                    return ret;
                 }
 
-                return {
-                    ...user,
-                    id: user.id.toString(),
-                }
+                return null;
             },
         }),
     ],
@@ -63,14 +58,9 @@ export default {
             }
             return session;
         },
-        jwt: async ({ token, user }: any)  => {
+        jwt: async ({ token, user })  => {
             if (token && user) {
-                token.user = {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    admin: user.admin,
-                }
+                token.user = user;
             }
             return token;
         },
@@ -78,4 +68,4 @@ export default {
     pages: {
         signIn: "/inloggen"
     },
-}
+} satisfies NextAuthOptions;
