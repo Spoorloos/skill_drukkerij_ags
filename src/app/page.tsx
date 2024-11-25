@@ -39,7 +39,7 @@ async function Schedule() {
             <main className="p-8 pb-0 space-y-8">
                 <section>
                     <h2 className="pb-4 text-xl font-bold">Schedule</h2>
-                    <ol className="flex bg-blue-100">
+                    <ol className="flex break-words bg-blue-100">
                         {Array.from({ length: upcomingDays.length }).map((_, repeatIndex) => (
                             <li key={repeatIndex}>
                                 <article className="p-4">

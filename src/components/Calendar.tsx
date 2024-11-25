@@ -54,7 +54,7 @@ export default async function Schedule() {
                                                 <span className="font-semibold">Time: </span>
                                                 <time>{appointment.start_time} - {appointment.end_time}</time>
                                             </p>
-                                            <p className="text-sm text-gray-600 break-words">
+                                            <p className="text-sm text-gray-600">
                                                 <span className="font-semibold">Description:</span> {appointment.description}
                                             </p>
                                         </article>
