@@ -5,7 +5,7 @@ import { dateToString } from "@/lib/utils";
 import { getServerSession, type Session } from "next-auth";
 import authOptions from "@/app/api/auth/authOptions";
 import { redirect } from "next/navigation";
-import { hash } from "argon2";
+import { hash } from "bcrypt";
 import { type Database } from "@/../database";
 import { appointmentSchema, signupSchema } from "@/lib/schemas";
 
@@ -82,7 +82,7 @@ export async function signupAction(
         .from("user")
         .insert({
             ...data,
-            password: await hash(data.password),
+            password: await hash(data.password, 12),
         });
 
     if (error) {

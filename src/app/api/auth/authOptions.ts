@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import { createClient } from "@supabase/supabase-js";
-import { verify } from "argon2";
+import { compare } from "bcrypt";
 import { type Database } from "@/../database";
 import { type NextAuthOptions } from "next-auth";
 import { loginSchema } from "@/lib/schemas";
@@ -24,30 +24,33 @@ export default {
                 });
 
                 if (!success) {
-                    return null;
+                    return null; // Malformed input
                 }
 
                 // Get user from database
-                const { data: users, error } = await supabase
+                const { data: user, error } = await supabase
                     .from("user")
                     .select()
-                    .eq("email", input.email);
+                    .eq("email", input.email)
+                    .limit(1)
+                    .single();
 
-                if (error) {
-                    return null;
+                if (error || !user) {
+                    return null; // Account doesn't exist
                 }
 
                 // Check password and return user
-                const user = users.find(async (user) => {
-                    return await verify(user.password, input.password);
-                });
-
-                if (user) {
-                    const { password: _, ...ret } = user;
-                    return ret;
+                const matches = await compare(input.password, user.password);
+                if (!matches) {
+                    return null; // Password is incorrect
                 }
 
-                return null;
+                return {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    admin: user.admin,
+                }
             },
         }),
     ],
