@@ -16,7 +16,7 @@ type RootLayout = Readonly<{
 export default function RootLayout({ children }: RootLayout) {
     return (
         <html lang="en">
-            <body className={`${GeistSans.className} antialiased`}>
+            <body className={`${GeistSans.className} antialiased flex flex-col min-h-screen`}>
                 <Provider>
                     <Header/>
                     {children}

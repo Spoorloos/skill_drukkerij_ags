@@ -10,7 +10,7 @@ export default function Header() {
     const user = session?.user;
 
     return (
-        <header className="sticky top-0 z-50 flex items-center justify-between p-3 border-b border-border/40 bg-background/95 backdrop-blur">
+        <header className="sticky top-0 z-50 flex items-center justify-between p-3 border-b border-sidebar-border bg-background/95 backdrop-blur">
             <Link href="/"><h1 className="font-bold">Drukkerij AGS</h1></Link>
             <nav className="space-x-2">
                 <Link className={buttonVariants({ variant: "ghost" })} href="/afspraak">Afspraak maken</Link>
