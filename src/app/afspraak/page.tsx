@@ -1,14 +1,13 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { appointmentSubmit, getAppointmentTimes } from "@/lib/actions";
 import { useActionState } from "react";
 import { useState, useEffect } from "react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import SubmitButton from "@/components/SubmitButton";
 import { DatePicker } from "@/components/ui/datepicker";
 import {
     Select,
@@ -19,13 +18,13 @@ import {
 } from "@/components/ui/select";
 
 export default function Appointment() {
-    const session = useSession();
+    const router = useRouter();
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [times, setTimes] = useState<string[]>();
     const [result, formAction, isPending] = useActionState(appointmentSubmit, null);
 
     if (result?.status === 1) {
-        setTimeout(() => redirect("/"), 2000);
+        setTimeout(() => router.push("/"), 2000);
     }
 
     useEffect(() => {
@@ -33,12 +32,6 @@ export default function Appointment() {
             getAppointmentTimes(date, new Date()).then(setTimes);
         }
     }, [date]);
-
-    useEffect(() => {
-        if (session.status !== "loading" && !session.data) {
-            redirect("/inloggen");
-        }
-    }, [session]);
 
     return (
         <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 p-8">
@@ -77,10 +70,7 @@ export default function Appointment() {
                     <p className={result.status === 0 ? "text-red-500" : ""}>{result.message}</p>
                 }
                 <div className="text-end">
-                    <Button type="submit" className="font-semibold" disabled={isPending}>
-                        {isPending && <Loader2 className="animate-spin"/>}
-                        Maak een afspraak
-                    </Button>
+                    <SubmitButton isPending={isPending}>Maak een afspraak</SubmitButton>
                 </div>
             </form>
         </main>

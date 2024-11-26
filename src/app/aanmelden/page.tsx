@@ -1,8 +1,7 @@
 "use client";
 
+import SubmitButton from "@/components/SubmitButton";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { useActionState } from "react";
 import { signupAction } from "@/lib/actions";
 import Link from "next/link";
@@ -30,10 +29,7 @@ export default function Inloggen() {
                 {result && result.status === 0 &&
                     <strong className="block font-normal text-red-500">{result.message}</strong>
                 }
-                <Button className="w-full font-semibold" type="submit" disabled={isPending}>
-                    {isPending && <Loader2 className="animate-spin"/>}
-                    Meld je aan
-                </Button>
+                <SubmitButton className="w-full" isPending={isPending}>Meld je aan</SubmitButton>
             </form>
         </main>
     );

@@ -44,33 +44,6 @@ export type Database = {
           },
         ]
       }
-      fred_appointment: {
-        Row: {
-          date: string
-          description: string | null
-          end_time: string
-          id: number
-          start_time: string
-          subject: string
-        }
-        Insert: {
-          date?: string
-          description?: string | null
-          end_time?: string
-          id?: number
-          start_time?: string
-          subject?: string
-        }
-        Update: {
-          date?: string
-          description?: string | null
-          end_time?: string
-          id?: number
-          start_time?: string
-          subject?: string
-        }
-        Relationships: []
-      }
       user: {
         Row: {
           admin: boolean

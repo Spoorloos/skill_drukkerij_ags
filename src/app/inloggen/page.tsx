@@ -2,13 +2,13 @@
 
 import { signIn } from "next-auth/react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useActionState, useState } from "react";
-import { redirect } from "next/navigation";
+import SubmitButton from "@/components/SubmitButton";
+import { useActionState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
 
 export default function Inloggen() {
+    const router = useRouter();
     const [error, formAction, isPending] = useActionState(loginAction, null);
 
     async function loginAction(_: string | null, formData: FormData) {
@@ -19,10 +19,11 @@ export default function Inloggen() {
         });
 
         if (result?.ok) {
-            redirect("/");
-        } else {
-            return "We konden je niet inloggen. Check of je je gegevens goed hebt geschreven!";
+            router.push("/");
+            return "Je bent ingelogd!";
         }
+
+        return "We konden je niet inloggen. Check of je je gegevens goed hebt geschreven!";
     }
 
     return (
@@ -41,10 +42,7 @@ export default function Inloggen() {
                 {error &&
                     <strong className="block font-normal text-red-500">{error}</strong>
                 }
-                <Button className="w-full font-semibold" type="submit" disabled={isPending}>
-                    {isPending && <Loader2 className="animate-spin"/>}
-                    Log in
-                </Button>
+                <SubmitButton className="w-full" isPending={isPending}>Log in</SubmitButton>
             </form>
         </main>
     );

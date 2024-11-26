@@ -21,8 +21,7 @@ export async function appointmentSubmit(
     formData: FormData
 ): Promise<ActionResult> {
     // Get user
-    const session: Session | null = await getServerSession(authOptions);
-    const user = session?.user;
+    const user = await getUser();
     if (!user) {
         return {
             message: "Je bent niet ingelogt",
@@ -107,4 +106,9 @@ export async function getAppointmentTimes(date: Date, now: Date) {
     }
 
     return result.data.map(x => x.available_time);
+}
+
+export async function getUser() {
+    const session: Session | null = await getServerSession(authOptions);
+    return session?.user;
 }
