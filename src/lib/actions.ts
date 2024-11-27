@@ -8,7 +8,6 @@ import { redirect } from "next/navigation";
 import { hash } from "bcrypt";
 import { type Database } from "@/../database";
 import { appointmentSchema, signupSchema, userDataSchema } from "@/lib/schemas";
-import { z } from "zod";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
@@ -114,15 +113,20 @@ export async function getUser() {
     return session?.user;
 }
 
-export async function getUsers() {
+export async function getUsers(filter?: string) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
         return;
     }
 
-    return await supabase
+    let query = supabase
         .from("user")
         .select("id, name, email, role");
+
+    if (filter) query = query.or(`name.ilike.%${filter}%, email.ilike.%${filter}%`);
+    // insert pagination...
+
+    return await query;
 }
 
 export async function deleteUser(id: number) {

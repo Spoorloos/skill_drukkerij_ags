@@ -32,23 +32,25 @@ import {
 } from "@/components/ui/select"
 
 export default function Gebruikers() {
+    const [ filter, setFilter ] = useState<string>();
     const [ users, setUsers ] = useState<User[]>();
     const [ error, setError ] = useState<boolean>();
     const [ isLoading, startTransition ] = useTransition();
 
     const fetchUsers = () => {
         startTransition(async () => {
-            const data = await getUsers();
+            const data = await getUsers(filter);
             setUsers(data?.data ?? undefined);
             setError(!!data?.error?.message);
         });
     }
 
-    useEffect(fetchUsers, []);
+    useEffect(fetchUsers, [ filter ]);
 
     return (
         <>
             <h1 className="text-3xl font-bold">Gebruikers</h1>
+            <Input className="max-w-sm" placeholder="Filter gebruikers" onChange={e => setFilter(e.target.value)}/>
             {isLoading ? <>
                 <small className="block italic">Aan het laden...</small>
             </> : error ? <>
