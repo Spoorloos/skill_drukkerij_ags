@@ -18,7 +18,7 @@ export default function Header() {
                 <Link className={buttonVariants({ variant: "ghost" })} href="#">Test 2</Link>
                 <Link className={buttonVariants({ variant: "ghost" })} href="#">Test 3</Link>
                 {user ? <>
-                    {user.admin &&
+                    {user.role === "Admin" &&
                         <Link className={buttonVariants({ variant: "outline" })} href="/dashboard">Dashboard</Link>
                     }
                     <Button className="font-semibold" onClick={() => signOut()}>Uitloggen</Button>

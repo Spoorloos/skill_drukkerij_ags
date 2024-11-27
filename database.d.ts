@@ -11,26 +11,32 @@ export type Database = {
     Tables: {
       appointment: {
         Row: {
+          appointment_status: boolean | null
           date: string
           description: string
+          double_sided: boolean
           id: number
-          subject: string
+          quantity: number
           time: string
           user: number
         }
         Insert: {
+          appointment_status?: boolean | null
           date: string
           description: string
+          double_sided?: boolean
           id?: number
-          subject: string
+          quantity?: number
           time: string
           user: number
         }
         Update: {
+          appointment_status?: boolean | null
           date?: string
           description?: string
+          double_sided?: boolean
           id?: number
-          subject?: string
+          quantity?: number
           time?: string
           user?: number
         }
@@ -46,25 +52,25 @@ export type Database = {
       }
       user: {
         Row: {
-          admin: boolean
           email: string
           id: number
           name: string
           password: string
+          role: Database["public"]["Enums"]["role"]
         }
         Insert: {
-          admin?: boolean
           email: string
           id?: number
           name: string
           password: string
+          role?: Database["public"]["Enums"]["role"]
         }
         Update: {
-          admin?: boolean
           email?: string
           id?: number
           name?: string
           password?: string
+          role?: Database["public"]["Enums"]["role"]
         }
         Relationships: []
       }
@@ -84,7 +90,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      role: "Admin" | "Gebruiker"
     }
     CompositeTypes: {
       [_ in never]: never

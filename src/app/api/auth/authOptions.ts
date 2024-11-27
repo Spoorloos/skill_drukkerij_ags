@@ -1,9 +1,9 @@
 import CredentialsProvider from "next-auth/providers/credentials";
-import { createClient } from "@supabase/supabase-js";
 import { compare } from "bcrypt";
-import { type Database } from "@/../database";
 import { type NextAuthOptions } from "next-auth";
 import { loginSchema } from "@/lib/schemas";
+import { type Database } from "@/../database";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
@@ -49,13 +49,13 @@ export default {
                     id: user.id,
                     name: user.name,
                     email: user.email,
-                    admin: user.admin,
+                    role: user.role,
                 }
             },
         }),
     ],
     callbacks: {
-        session: async ({ session, token }: any) => {
+        session: async ({ session, token }) => {
             if (session && token) {
                 session.user = token.user;
             }

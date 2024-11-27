@@ -112,3 +112,26 @@ export async function getUser() {
     const session: Session | null = await getServerSession(authOptions);
     return session?.user;
 }
+
+export async function getUsers() {
+    const user = await getUser();
+    if (!user || user.role !== "Admin") {
+        return;
+    }
+
+    return await supabase
+        .from("user")
+        .select("id, name, email, role");
+}
+
+export async function deleteUser(id: number) {
+    const user = await getUser();
+    if (!user || user.role !== "Admin") {
+        return;
+    }
+
+    return await supabase
+        .from("user")
+        .delete()
+        .eq("id", id);
+}

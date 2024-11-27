@@ -1,6 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
-import { type Database } from "@/../database";
 import { dateWithoutTime } from "@/lib/utils";
+import { type Database } from "@/../database";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
