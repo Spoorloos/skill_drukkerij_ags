@@ -36,7 +36,7 @@ export default async function Schedule() {
                             .filter(x => x.date === dateWithoutTime(day))
                             .map(appointment =>
                                 <li className="w-full p-6 mx-auto bg-white rounded-lg shadow-md" key={appointment.id}>
-                                    <h4 className="mb-4 text-xl font-bold text-center text-gray-800">{appointment.subject}</h4>
+                                    <h4 className="mb-4 text-xl font-bold text-center text-gray-800">{appointment.id}</h4>
                                     <p className="mb-2 text-sm text-gray-600">
                                         <span className="font-semibold">Time: </span>
                                         <time dateTime={`${appointment.date}T${appointment.time}:00`}>{appointment.time}</time>
