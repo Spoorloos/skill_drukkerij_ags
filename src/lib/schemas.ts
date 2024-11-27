@@ -9,10 +9,17 @@ export const appointmentSchema = z.object({
 });
 
 export const loginSchema = z.object({
-    email: z.string().email().max(75),
-    password: z.string().max(50),
+    email: z.string().email().min(5).max(75),
+    password: z.string().min(8).max(50),
 });
 
 export const signupSchema = loginSchema.extend({
-    name: z.string().max(50).min(0),
+    name: z.string().min(5).max(50),
 });
+
+export const userDataSchema = z.object({
+    name: z.string().min(5).max(50),
+    email: z.string().email().min(5).max(75),
+    password: z.string().min(8).max(50).optional(),
+    role: z.enum([ "Admin", "Gebruiker" ]),
+})

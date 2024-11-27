@@ -1,10 +1,10 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { appointmentSubmit, getAppointmentTimes } from "@/lib/actions";
 import { useActionState } from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import SubmitButton from "@/components/SubmitButton";
@@ -38,15 +38,15 @@ export default function Appointment() {
             <h1 className="text-3xl font-bold">Maak een afspraak</h1>
             <form className="space-y-4 w-[clamp(10rem,70vw,30rem)]" action={formAction}>
                 <div className="space-y-1">
-                    <label htmlFor="subject">Onderwerp</label>
+                    <Label htmlFor="subject">Onderwerp</Label>
                     <Input id="subject" name="subject" placeholder="Bijvoorbeeld: Poster 50x70cm" maxLength={50} required/>
                 </div>
                 <div className="space-y-1">
-                    <label htmlFor="description">Beschrijving</label>
+                    <Label htmlFor="description">Beschrijving</Label>
                     <Textarea id="description" name="description" placeholder="Leg uitgebreid uit wat je wilt afdrukken" maxLength={1000} required/>
                 </div>
                 <div className="space-y-1">
-                    <label className="block">Dag en tijd</label>
+                    <Label className="block">Dag en tijd</Label>
                     <div className="flex flex-wrap gap-4">
                         <div className="flex-1">
                             <DatePicker date={date} setDate={setDate} fromDate={new Date()}/>
