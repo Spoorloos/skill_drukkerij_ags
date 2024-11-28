@@ -1,7 +1,8 @@
 "use client";
 
 import DataTable from "@/components/DataTable";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { getPages } from "@/lib/utils";
 import { getUsers, deleteUser, updateUser } from "@/lib/actions";
 import { useParams, useSearchParams } from "next/navigation";
 import { User } from "next-auth";
@@ -116,11 +117,7 @@ type TablePagination = Readonly<{
 function TablePagination({ page, count }: TablePagination) {
     const searchParams = useSearchParams();
     const pageCount = Math.ceil(count / PAGE_COUNT);
-    const pages = useMemo(() => {
-        const length = Math.max(3, pageCount);
-        const start = Math.max(1, Math.min(page - 1, pageCount - length));
-        return Array.from({ length }, (_, i) => start + i);
-    }, [ page, pageCount ]);
+    const pages = getPages(page, pageCount);
 
     return (
         <Pagination>

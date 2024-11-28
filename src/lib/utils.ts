@@ -12,3 +12,9 @@ export function dateToString(date: Date) {
 export function dateWithoutTime(date: Date) {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
+
+export function getPages(current: number, count: number) {
+    const length = Math.min(3, count);
+    const start = Math.max(1, Math.min(current - 1, count - length));
+    return Array.from({ length }, (_, i) => start + i);
+}
