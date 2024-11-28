@@ -1,4 +1,4 @@
-import { dateWithoutTime } from "@/lib/utils";
+import { dateToString } from "@/lib/utils";
 import { type Database } from "@/../database";
 import { createClient } from "@supabase/supabase-js";
 
@@ -14,8 +14,8 @@ export default async function Schedule() {
     const { data: appointments, error } = await supabase
         .from("appointment")
         .select("*")
-        .gte("date", dateWithoutTime(days[0]))
-        .lte("date", dateWithoutTime(days[4]));
+        .gte("date", dateToString(days[0]))
+        .lte("date", dateToString(days[4]));
 
     if (error || !appointments) {
         console.error(`Error fetching data ${error ?? ""}`);
@@ -23,19 +23,19 @@ export default async function Schedule() {
     }
 
     return (
-        <ol className="grid border border-border rounded-lg" style={{
+        <ol className="grid border rounded-lg border-border" style={{
             gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))`
         }}>
             {days.map((day, index) =>
                 <li className="flex flex-col gap-4 p-4" key={index}>
                     <h3 className="text-lg font-bold">
-                        <time dateTime={dateWithoutTime(day)}>{day.toDateString().slice(0, 3)}</time>
+                        <time dateTime={dateToString(day)}>{day.toDateString().slice(0, 3)}</time>
                     </h3>
                     <ol className="contents">
                         {appointments
-                            .filter(x => x.date === dateWithoutTime(day))
+                            .filter(x => x.date === dateToString(day))
                             .map(appointment =>
-                                <li className="w-full p-6 mx-auto bg-muted rounded-lg shadow-md text-muted-foreground" key={appointment.id}>
+                                <li className="w-full p-6 mx-auto rounded-lg shadow-md bg-muted text-muted-foreground" key={appointment.id}>
                                     <p className="mb-2 text-sm">
                                         <span className="font-semibold">Time: </span>
                                         <time dateTime={`${appointment.date}T${appointment.time}:00`}>{appointment.time}</time>
