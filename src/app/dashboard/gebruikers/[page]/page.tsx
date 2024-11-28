@@ -3,7 +3,7 @@
 import DataTable from "@/components/DataTable";
 import { useEffect, useState, useTransition } from "react";
 import { getUsers, deleteUser, updateUser } from "@/lib/actions";
-import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { User } from "next-auth";
 import {
     DropdownMenu,
@@ -68,7 +68,7 @@ export default function Gebruikers() {
         <>
             <h1 className="text-3xl font-bold">Gebruikers</h1>
             <form className="flex gap-4" action="/dashboard/gebruikers">
-                <Input className="max-w-sm" placeholder="Filter gebruikers..." name="filter" defaultValue={filter}/>
+                <Input className="max-w-sm" placeholder="Filter op naam en email" name="filter" defaultValue={filter}/>
                 <Button type="submit">Filter</Button>
             </form>
             {isLoading ? <>
@@ -99,33 +99,44 @@ export default function Gebruikers() {
                         cell: ({ row }) => <ActionDropdown user={row.original} refresh={fetchUsers}/>
                     }
                 ]}/>
-                {!count ? undefined :
-                    <Pagination>
-                        <PaginationContent>
-                            {page <= 1 ? undefined :
-                                <PaginationItem>
-                                    <PaginationPrevious href={`/dashboard/gebruikers/${page - 1}?${searchParams}`}/>
-                                </PaginationItem>
-                            }
-                            {[ page - 1, page, page + 1 ]
-                                .filter(x => x > 0 && x <= Math.ceil(count / PAGE_COUNT))
-                                .map(x =>
-                                    <PaginationLink
-                                        href={`/dashboard/gebruikers/${x}?${searchParams}`}
-                                        isActive={x === page}
-                                        key={x}
-                                    >{x}</PaginationLink>
-                                )}
-                            {page >= Math.ceil(count / PAGE_COUNT) ? undefined :
-                                <PaginationItem>
-                                    <PaginationNext href={`/dashboard/gebruikers/${page + 1}?${searchParams}`}/>
-                                </PaginationItem>
-                            }
-                        </PaginationContent>
-                    </Pagination>
-                }
+                {count ? <TablePagination page={page} count={count}/> : undefined}
             </>}
         </>
+    );
+}
+
+type TablePagination = Readonly<{
+    page: number;
+    count: number;
+}>;
+
+function TablePagination({ page, count }: TablePagination) {
+    const searchParams = useSearchParams();
+
+    return (
+        <Pagination>
+            <PaginationContent>
+                {page <= 1 ? undefined :
+                    <PaginationItem>
+                        <PaginationPrevious href={`/dashboard/gebruikers/${page - 1}?${searchParams}`}/>
+                    </PaginationItem>
+                }
+                {[ page - 1, page, page + 1 ]
+                    .filter(x => x > 0 && x <= Math.ceil(count / PAGE_COUNT))
+                    .map(x =>
+                        <PaginationLink
+                            href={`/dashboard/gebruikers/${x}?${searchParams}`}
+                            isActive={x === page}
+                            key={x}
+                        >{x}</PaginationLink>
+                    )}
+                {page >= Math.ceil(count / PAGE_COUNT) ? undefined :
+                    <PaginationItem>
+                        <PaginationNext href={`/dashboard/gebruikers/${page + 1}?${searchParams}`}/>
+                    </PaginationItem>
+                }
+            </PaginationContent>
+        </Pagination>
     );
 }
 
