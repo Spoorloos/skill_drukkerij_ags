@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
             destination: "/dashboard/afspraken",
             permanent: true,
         },
+        {
+            source: "/dashboard/gebruikers",
+            destination: "/dashboard/gebruikers/1",
+            permanent: true,
+        }
     ],
 };
 

@@ -3,6 +3,7 @@
 import DataTable from "@/components/DataTable";
 import { useEffect, useState, useTransition } from "react";
 import { getUsers, deleteUser, updateUser } from "@/lib/actions";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { User } from "next-auth";
 import {
     DropdownMenu,
@@ -30,12 +31,22 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { useRouter, useSearchParams } from "next/navigation";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
 
 export default function Gebruikers() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const filter = searchParams.get("filter") || undefined;
+    const params = useParams();
+    const page = parseInt(String(params.page)) || 1;
 
     const setFilter = (value: string) => {
         const params = new URLSearchParams(searchParams);
@@ -49,22 +60,24 @@ export default function Gebruikers() {
 
     const [ users, setUsers ] = useState<User[]>();
     const [ error, setError ] = useState<boolean>();
+    const [ count, setCount ] = useState<number>();
     const [ isLoading, startTransition ] = useTransition();
 
     const fetchUsers = () => {
         startTransition(async () => {
-            const data = await getUsers(filter);
+            const data = await getUsers(filter, page);
             setUsers(data?.data ?? undefined);
             setError(!!data?.error?.message);
+            setCount(data?.count ?? undefined);
         });
     }
 
-    useEffect(fetchUsers, [ filter ]);
+    useEffect(fetchUsers, [ filter, page ]);
 
     return (
         <>
             <h1 className="text-3xl font-bold">Gebruikers</h1>
-            <Input className="max-w-sm" placeholder="Filter gebruikers" onChange={e => setFilter(e.target.value)}/>
+            <Input className="max-w-sm" placeholder="Filter gebruikers" value={filter} onChange={e => setFilter(e.target.value)}/>
             {isLoading ? <>
                 <small className="block italic">Aan het laden...</small>
             </> : error ? <>
@@ -93,6 +106,25 @@ export default function Gebruikers() {
                         cell: ({ row }) => <ActionDropdown user={row.original} refresh={fetchUsers}/>
                     }
                 ]}/>
+                {count && <Pagination>
+                    <PaginationContent>
+                        {page > 1 && <PaginationItem>
+                            <PaginationPrevious href={`/dashboard/gebruikers/${page - 1}`}/>
+                        </PaginationItem>}
+                        {[ page - 1, page, page + 1 ]
+                            .filter(x => x > 0 && x <= Math.ceil(count / 5))
+                            .map(x =>
+                                <PaginationLink
+                                    href={`/dashboard/gebruikers/${x}`}
+                                    isActive={x === page}
+                                    key={x}
+                                >{x}</PaginationLink>
+                            )}
+                        {page < Math.ceil(count / 5) && <PaginationItem>
+                            <PaginationNext href={`/dashboard/gebruikers/${page + 1}`}/>
+                        </PaginationItem>}
+                    </PaginationContent>
+                </Pagination>}
             </>}
         </>
     );

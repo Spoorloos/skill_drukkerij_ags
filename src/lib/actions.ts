@@ -87,7 +87,7 @@ export async function signupAction(
 
     if (error) {
         return {
-            message: "We konden je account niet aanmaken.",
+            message: "We konden je account niet aanmaken. Misschien is de email al in gebruik.",
             status: 0,
         }
     }
@@ -113,7 +113,7 @@ export async function getUser() {
     return session?.user;
 }
 
-export async function getUsers(filter?: string) {
+export async function getUsers(filter?: string, page?: number) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
         return;
@@ -121,10 +121,10 @@ export async function getUsers(filter?: string) {
 
     let query = supabase
         .from("user")
-        .select("id, name, email, role");
+        .select("id, name, email, role", { count: "exact" });
 
     if (filter) query = query.or(`name.ilike.%${filter}%, email.ilike.%${filter}%`);
-    // insert pagination...
+    if (page) query = query.range((page - 1) * 5, page * 5);
 
     return await query;
 }
