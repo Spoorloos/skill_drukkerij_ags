@@ -113,7 +113,7 @@ export async function getUser() {
     return session?.user;
 }
 
-export async function getUsers(filter?: string, page?: number) {
+export async function getUsers(filter?: string, page?: number, pageLength: number = 5) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
         return;
@@ -124,7 +124,7 @@ export async function getUsers(filter?: string, page?: number) {
         .select("id, name, email, role", { count: "exact" });
 
     if (filter) query = query.or(`name.ilike.%${filter}%, email.ilike.%${filter}%`);
-    if (page) query = query.range((page - 1) * 5, page * 5 - 1);
+    if (page) query = query.range((page - 1) * pageLength, page * pageLength - 1);
 
     return await query;
 }

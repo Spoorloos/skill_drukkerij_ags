@@ -30,16 +30,17 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
+
+const PAGE_COUNT = 8;
 
 export default function Gebruikers() {
     const params = useParams();
@@ -54,7 +55,7 @@ export default function Gebruikers() {
 
     const fetchUsers = () => {
         startTransition(async () => {
-            const data = await getUsers(filter, page);
+            const data = await getUsers(filter, page, PAGE_COUNT);
             setUsers(data?.data ?? undefined);
             setError(!!data?.error?.message);
             setCount(data?.count ?? undefined);
@@ -107,7 +108,7 @@ export default function Gebruikers() {
                                 </PaginationItem>
                             }
                             {[ page - 1, page, page + 1 ]
-                                .filter(x => x > 0 && x <= Math.ceil(count / 5))
+                                .filter(x => x > 0 && x <= Math.ceil(count / PAGE_COUNT))
                                 .map(x =>
                                     <PaginationLink
                                         href={`/dashboard/gebruikers/${x}?${searchParams}`}
@@ -115,7 +116,7 @@ export default function Gebruikers() {
                                         key={x}
                                     >{x}</PaginationLink>
                                 )}
-                            {page >= Math.ceil(count / 5) ? undefined :
+                            {page >= Math.ceil(count / PAGE_COUNT) ? undefined :
                                 <PaginationItem>
                                     <PaginationNext href={`/dashboard/gebruikers/${page + 1}?${searchParams}`}/>
                                 </PaginationItem>
