@@ -98,25 +98,31 @@ export default function Gebruikers() {
                         cell: ({ row }) => <ActionDropdown user={row.original} refresh={fetchUsers}/>
                     }
                 ]}/>
-                {count && <Pagination>
-                    <PaginationContent>
-                        {page > 1 && <PaginationItem>
-                            <PaginationPrevious href={`/dashboard/gebruikers/${page - 1}?${searchParams}`}/>
-                        </PaginationItem>}
-                        {[ page - 1, page, page + 1 ]
-                            .filter(x => x > 0 && x <= Math.ceil(count / 5))
-                            .map(x =>
-                                <PaginationLink
-                                    href={`/dashboard/gebruikers/${x}?${searchParams}`}
-                                    isActive={x === page}
-                                    key={x}
-                                >{x}</PaginationLink>
-                            )}
-                        {page < Math.ceil(count / 5) && <PaginationItem>
-                            <PaginationNext href={`/dashboard/gebruikers/${page + 1}?${searchParams}`}/>
-                        </PaginationItem>}
-                    </PaginationContent>
-                </Pagination>}
+                {!count ? undefined :
+                    <Pagination>
+                        <PaginationContent>
+                            {page <= 1 ? undefined :
+                                <PaginationItem>
+                                    <PaginationPrevious href={`/dashboard/gebruikers/${page - 1}?${searchParams}`}/>
+                                </PaginationItem>
+                            }
+                            {[ page - 1, page, page + 1 ]
+                                .filter(x => x > 0 && x <= Math.ceil(count / 5))
+                                .map(x =>
+                                    <PaginationLink
+                                        href={`/dashboard/gebruikers/${x}?${searchParams}`}
+                                        isActive={x === page}
+                                        key={x}
+                                    >{x}</PaginationLink>
+                                )}
+                            {page >= Math.ceil(count / 5) ? undefined :
+                                <PaginationItem>
+                                    <PaginationNext href={`/dashboard/gebruikers/${page + 1}?${searchParams}`}/>
+                                </PaginationItem>
+                            }
+                        </PaginationContent>
+                    </Pagination>
+                }
             </>}
         </>
     );
