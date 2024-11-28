@@ -1,13 +1,13 @@
 "use server";
 
 import { createClient } from "@supabase/supabase-js";
-import { dateToString } from "@/lib/utils";
 import { getServerSession, User, type Session } from "next-auth";
 import authOptions from "@/app/api/auth/authOptions";
 import { redirect } from "next/navigation";
 import { hash } from "bcrypt";
 import { type Database } from "@/../database";
 import { appointmentSchema, signupSchema, userDataSchema } from "@/lib/schemas";
+import { dateToString, dateWithTime } from "@/lib/utils";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
@@ -97,7 +97,7 @@ export async function signupAction(
 export async function getAppointmentTimes(date: Date, now: Date) {
     const result = await supabase.rpc("get_available_times", {
         input_date: dateToString(date),
-        now: dateToString(now),
+        now: dateWithTime(now),
     });
 
     if (result.error || !result.data) {
