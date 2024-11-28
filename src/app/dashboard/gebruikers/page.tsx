@@ -30,9 +30,23 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Gebruikers() {
-    const [ filter, setFilter ] = useState<string>();
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const filter = searchParams.get("filter") || undefined;
+
+    const setFilter = (value: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (value) {
+            params.set("filter", value);
+        } else {
+            params.delete("filter");
+        }
+        router.push("?" + params);
+    }
+
     const [ users, setUsers ] = useState<User[]>();
     const [ error, setError ] = useState<boolean>();
     const [ isLoading, startTransition ] = useTransition();
