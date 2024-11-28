@@ -10,7 +10,7 @@ type SubmitButton = Readonly<{
 
 export default function SubmitButton({ className, isPending, children }: SubmitButton) {
     return (
-        <Button type="submit" className={cn("font-semibold", className)} disabled={isPending}>
+        <Button type="submit" className={className} disabled={isPending}>
             {isPending && <Loader2 className="animate-spin"/>}
             {children}
         </Button>

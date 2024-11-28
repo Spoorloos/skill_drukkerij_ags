@@ -24,22 +24,23 @@ export default function Header() {
                 </button>
             </div>
             <nav className={cn("hidden md:flex flex-col sm:flex-row gap-2 items-stretch sm:items-center h-full", toggled && "flex")}>
+                <Link className={buttonVariants({ variant: "ghost" })} href="/afspraak">Afspraak maken</Link>
                 <Link className={buttonVariants({ variant: "ghost" })} href="#">Test 1</Link>
                 <Link className={buttonVariants({ variant: "ghost" })} href="#">Test 2</Link>
-                <Link className={buttonVariants({ variant: "ghost" })} href="/afspraak">Afspraak maken</Link>
+                <Link className={buttonVariants({ variant: "ghost" })} href="#">Test 3</Link>
                 <div className={cn("flex flex-col sm:flex-row items-stretch gap-[inherit]", toggled && "mt-auto")}>
                     {status !== "loading" ? (
                         user ? <>
                             {user.role === "Admin" &&
                                 <Link className={buttonVariants({ variant: "outline" })} href="/dashboard">Dashboard</Link>
                             }
-                            <Button className="font-semibold" onClick={() => signOut()}>Uitloggen</Button>
+                            <Button onClick={() => signOut()}>Uitloggen</Button>
                         </> : <>
                             <Link className={buttonVariants({ variant: "outline" })} href="/aanmelden">Aanmelden</Link>
-                            <Link className={buttonVariants({ variant: "default" }) + " font-semibold"} href="/inloggen">Inloggen</Link>
+                            <Link className={buttonVariants({ variant: "default" })} href="/inloggen">Inloggen</Link>
                         </>
                     ) : <>
-                        <Skeleton className="w-[9ch] h-9 px-4 py-2"/>
+                        <Skeleton className="w-[10ch] h-9 px-4 py-2"/>
                         <Skeleton className="w-[9ch] h-9 px-4 py-2"/>
                     </>}
                 </div>
