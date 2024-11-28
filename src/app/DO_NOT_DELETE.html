@@ -24,7 +24,7 @@
     <!-- onclick allow btn look at cards server id and set appointment_status to true -->
     <!-- onclick don't allow btn look at cards server id and set appointment_status to false -->
     <!-- onclick confirm send data -->
-    <button id="openDialog" onclick="myDialog.showModal()">Open Dialog</button>
+    <button data-server-id="test" id="openDialog" onclick="myDialog.showModal()">Open Dialog</button>
     <dialog id="myDialog">
         <h4>Form</h4>
         <div>
@@ -39,6 +39,10 @@
         <button id="closeDialog" onclick="myDialog.close()">Close</button>
     </dialog>
 
+    <script>
+        const serverId = document.querySelector('#openDialog').getAttribute('data-server-id');
+        console.log('Server ID:', serverId);
+    </script>
 </body>
 
 </html>
