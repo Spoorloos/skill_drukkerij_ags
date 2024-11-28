@@ -10,7 +10,7 @@ type DashboardLayout = Readonly<{
 
 export default async function DashboardLayout({ children }: DashboardLayout) {
     const user = await getUser();
-    if (!user?.admin) {
+    if (!user || user.role !== "Admin") {
         redirect("/");
     }
 
@@ -18,17 +18,17 @@ export default async function DashboardLayout({ children }: DashboardLayout) {
         <SidebarProvider>
             <Sidebar items={[
                 {
+                    title: "Afspraken",
+                    href: "/dashboard/afspraken",
+                    icon: <Calendar/>,
+                },
+                {
                     title: "Gebruikers",
                     href: "/dashboard/gebruikers",
                     icon: <User/>,
                 },
-                {
-                    title: "Afspraken",
-                    href: "/dashboard/afspraken",
-                    icon: <Calendar/>,
-                }
             ]}/>
-            <main className="p-8 pb-0 space-y-8">
+            <main className="p-8 pb-0 space-y-4 w-full">
                 <SidebarTrigger/>
                 {children}
             </main>
