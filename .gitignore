@@ -40,10 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-<<<<<<< HEAD
 
 # fred's gedeelte
 info/
-=======
 .vercel
->>>>>>> 176bfa2b028f0078ca15e448f4242f576e9d8284
+src/app/fred_test/

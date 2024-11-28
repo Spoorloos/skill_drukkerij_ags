@@ -87,4 +87,7 @@
     .nav-item {
         @apply inline-block p-2 hover:bg-white hover:text-black;
     }
+    .hamburger-line {
+        @apply w-full h-1 bg-current rounded inline-block absolute left-0 transition-all duration-300;
+    }
 }
