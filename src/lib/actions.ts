@@ -31,7 +31,6 @@ export async function appointmentSubmit(
 
     // Validate form data with zod
     const { data, success } = appointmentSchema.safeParse({
-        subject: formData.get("subject"),
         description: formData.get("description"),
         date: formData.get("date"),
         time: formData.get("time"),

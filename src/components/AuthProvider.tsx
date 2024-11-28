@@ -2,11 +2,11 @@
 
 import { SessionProvider } from "next-auth/react";
 
-type Provider = Readonly<{
+type AuthProvider = Readonly<{
     children: React.ReactNode;
 }>;
 
-export default function Provider({ children }: Provider) {
+export default function AuthProvider({ children }: AuthProvider) {
     return (
         <SessionProvider>
             {children}

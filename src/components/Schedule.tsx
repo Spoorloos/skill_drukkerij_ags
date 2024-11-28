@@ -23,7 +23,7 @@ export default async function Schedule() {
     }
 
     return (
-        <ol className="grid bg-blue-100" style={{
+        <ol className="grid border border-border rounded-lg" style={{
             gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))`
         }}>
             {days.map((day, index) =>
@@ -35,13 +35,12 @@ export default async function Schedule() {
                         {appointments
                             .filter(x => x.date === dateWithoutTime(day))
                             .map(appointment =>
-                                <li className="w-full p-6 mx-auto bg-white rounded-lg shadow-md" key={appointment.id}>
-                                    <h4 className="mb-4 text-xl font-bold text-center text-gray-800">{appointment.id}</h4>
-                                    <p className="mb-2 text-sm text-gray-600">
+                                <li className="w-full p-6 mx-auto bg-muted rounded-lg shadow-md text-muted-foreground" key={appointment.id}>
+                                    <p className="mb-2 text-sm">
                                         <span className="font-semibold">Time: </span>
                                         <time dateTime={`${appointment.date}T${appointment.time}:00`}>{appointment.time}</time>
                                     </p>
-                                    <p className="text-sm text-gray-600 break-words">
+                                    <p className="text-sm break-words">
                                         <span className="font-semibold">Description: </span>
                                         <span>{appointment.description}</span>
                                     </p>

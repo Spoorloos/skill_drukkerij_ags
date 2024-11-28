@@ -38,10 +38,6 @@ export default function Appointment() {
             <h1 className="text-3xl font-bold">Maak een afspraak</h1>
             <form className="space-y-4 w-[clamp(10rem,70vw,30rem)]" action={formAction}>
                 <div className="space-y-1">
-                    <Label htmlFor="subject">Onderwerp</Label>
-                    <Input id="subject" name="subject" placeholder="Bijvoorbeeld: Poster 50x70cm" maxLength={50} required/>
-                </div>
-                <div className="space-y-1">
                     <Label htmlFor="description">Beschrijving</Label>
                     <Textarea id="description" name="description" placeholder="Leg uitgebreid uit wat je wilt afdrukken" maxLength={1000} required/>
                 </div>

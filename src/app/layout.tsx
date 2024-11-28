@@ -1,7 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
-import Provider from "@/components/Provider";
+import AuthProvider from "@/components/AuthProvider";
+import ThemeProvider from "@/components/ThemeProvider";
 import { GeistSans } from "geist/font/sans";
 
 export const metadata: Metadata = {
@@ -15,12 +16,18 @@ type RootLayout = Readonly<{
 
 export default function RootLayout({ children }: RootLayout) {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
             <body className={`${GeistSans.className} antialiased flex flex-col min-h-screen`}>
-                <Provider>
-                    <Header/>
-                    {children}
-                </Provider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="dark"
+                    enableSystem
+                >
+                    <AuthProvider>
+                        <Header/>
+                        {children}
+                    </AuthProvider>
+                </ThemeProvider>
             </body>
         </html>
     );
