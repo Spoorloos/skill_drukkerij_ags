@@ -42,21 +42,10 @@ import {
 } from "@/components/ui/pagination"
 
 export default function Gebruikers() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const filter = searchParams.get("filter") || undefined;
     const params = useParams();
+    const searchParams = useSearchParams();
     const page = parseInt(String(params.page)) || 1;
-
-    const setFilter = (value: string) => {
-        const params = new URLSearchParams(searchParams);
-        if (value) {
-            params.set("filter", value);
-        } else {
-            params.delete("filter");
-        }
-        router.push("?" + params);
-    }
+    const filter = searchParams.get("filter") || undefined;
 
     const [ users, setUsers ] = useState<User[]>();
     const [ error, setError ] = useState<boolean>();
@@ -77,7 +66,10 @@ export default function Gebruikers() {
     return (
         <>
             <h1 className="text-3xl font-bold">Gebruikers</h1>
-            <Input className="max-w-sm" placeholder="Filter gebruikers" value={filter} onChange={e => setFilter(e.target.value)}/>
+            <form className="flex gap-4" action="/dashboard/gebruikers">
+                <Input className="max-w-sm" placeholder="Filter gebruikers..." name="filter" defaultValue={filter}/>
+                <Button type="submit">Filter</Button>
+            </form>
             {isLoading ? <>
                 <small className="block italic">Aan het laden...</small>
             </> : error ? <>
@@ -109,19 +101,19 @@ export default function Gebruikers() {
                 {count && <Pagination>
                     <PaginationContent>
                         {page > 1 && <PaginationItem>
-                            <PaginationPrevious href={`/dashboard/gebruikers/${page - 1}`}/>
+                            <PaginationPrevious href={`/dashboard/gebruikers/${page - 1}?${searchParams}`}/>
                         </PaginationItem>}
                         {[ page - 1, page, page + 1 ]
                             .filter(x => x > 0 && x <= Math.ceil(count / 5))
                             .map(x =>
                                 <PaginationLink
-                                    href={`/dashboard/gebruikers/${x}`}
+                                    href={`/dashboard/gebruikers/${x}?${searchParams}`}
                                     isActive={x === page}
                                     key={x}
                                 >{x}</PaginationLink>
                             )}
                         {page < Math.ceil(count / 5) && <PaginationItem>
-                            <PaginationNext href={`/dashboard/gebruikers/${page + 1}`}/>
+                            <PaginationNext href={`/dashboard/gebruikers/${page + 1}?${searchParams}`}/>
                         </PaginationItem>}
                     </PaginationContent>
                 </Pagination>}

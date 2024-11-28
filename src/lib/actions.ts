@@ -124,7 +124,7 @@ export async function getUsers(filter?: string, page?: number) {
         .select("id, name, email, role", { count: "exact" });
 
     if (filter) query = query.or(`name.ilike.%${filter}%, email.ilike.%${filter}%`);
-    if (page) query = query.range((page - 1) * 5, page * 5);
+    if (page) query = query.range((page - 1) * 5, page * 5 - 1);
 
     return await query;
 }
