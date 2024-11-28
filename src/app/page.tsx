@@ -7,8 +7,6 @@ export default function Schedule() {
                 <h2 className="pb-4 text-xl font-bold">Schedule</h2>
                 <Calendar />
             </section>
-
-
         </main>
     );
 }
