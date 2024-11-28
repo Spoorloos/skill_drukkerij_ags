@@ -39,7 +39,6 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const PAGE_COUNT = 8;
 
@@ -116,6 +115,10 @@ type TablePagination = Readonly<{
 
 function TablePagination({ page, count }: TablePagination) {
     const searchParams = useSearchParams();
+    const pageCount = Math.ceil(count / PAGE_COUNT);
+    const pages = Array.from({ length: Math.min(3, pageCount) }, (_, i) => {
+        return Math.max(1, Math.min(pageCount - 2, page - 1)) + i;
+    });
 
     return (
         <Pagination>
@@ -125,16 +128,14 @@ function TablePagination({ page, count }: TablePagination) {
                         <PaginationPrevious href={`/dashboard/gebruikers/${page - 1}?${searchParams}`}/>
                     </PaginationItem>
                 }
-                {[ page - 1, page, page + 1 ]
-                    .filter(x => x > 0 && x <= Math.ceil(count / PAGE_COUNT))
-                    .map(x =>
-                        <PaginationLink
-                            href={`/dashboard/gebruikers/${x}?${searchParams}`}
-                            isActive={x === page}
-                            key={x}
-                        >{x}</PaginationLink>
-                    )}
-                {page >= Math.ceil(count / PAGE_COUNT) ? undefined :
+                {pages.map(x =>
+                    <PaginationLink
+                        href={`/dashboard/gebruikers/${x}?${searchParams}`}
+                        isActive={x === page}
+                        key={x}
+                    >{x}</PaginationLink>
+                )}
+                {page >= pageCount ? undefined :
                     <PaginationItem>
                         <PaginationNext href={`/dashboard/gebruikers/${page + 1}?${searchParams}`}/>
                     </PaginationItem>
