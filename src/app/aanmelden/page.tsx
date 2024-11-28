@@ -14,15 +14,15 @@ export default function Inloggen() {
         <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 p-8">
             <h1 className="text-3xl font-bold">Aanmelden</h1>
             <form className="w-full max-w-sm space-y-4" action={formAction}>
-                <div className="space-y-1">
+                <div className="space-y-2">
                     <Label htmlFor="name">Naam</Label>
                     <Input id="name" name="name" placeholder="Je volledige naam" minLength={5} maxLength={50} required/>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                     <Label htmlFor="email">E-mail</Label>
                     <Input id="email" name="email" type="email" placeholder="email@voorbeeld.nl" minLength={5} maxLength={75} required/>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                     <Label htmlFor="password">Wachtwoord</Label>
                     <Input id="password" name="password" type="password" placeholder="wachtwoord123" minLength={8} maxLength={50} required/>
                 </div>

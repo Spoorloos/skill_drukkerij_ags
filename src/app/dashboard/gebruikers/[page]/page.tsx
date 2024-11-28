@@ -154,7 +154,7 @@ function ActionDropdown({ user, refresh }: ActionDropdown) {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <div className="size-full text-end">
-                    <Button variant="ghost" className="h-8 w-8 p-0">
+                    <Button variant="ghost" className="w-8 h-8 p-0">
                         <Ellipsis/>
                     </Button>
                 </div>
@@ -203,19 +203,19 @@ function EditDialog({ children, user, refresh }: EditDialog) {
                     <DialogDescription>Maak aanpassingen aan een gebruiker's informatie en klik op opslaan als je klaar bent.</DialogDescription>
                 </DialogHeader>
                 <form className="contents" action={formAction}>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                         <Label htmlFor="user-name">Naam</Label>
                         <Input id="user-name" name="name" defaultValue={user.name} minLength={5} maxLength={50} required/>
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                         <Label htmlFor="user-email">Email</Label>
                         <Input id="user-email" name="email" type="email" defaultValue={user.email} minLength={5} maxLength={75} required/>
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                         <Label htmlFor="user-password">Wachtwoord</Label>
                         <Input id="user-password" name="password" placeholder="wachtwoord123" minLength={8} maxLength={50}/>
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                         <Label>Rol</Label>
                         <Select name="role" defaultValue={user.role}>
                             <SelectTrigger>
