@@ -1,5 +1,4 @@
 import Calendar from '@/components/Calendar';
-import Email from '@/components/email_test';
 
 export default function Schedule() {
     return (
@@ -9,10 +8,7 @@ export default function Schedule() {
                 <Calendar />
             </section>
 
-            <section>
-                <h2>email test</h2>
-                <Email />
-            </section>
+
         </main>
     );
 }
