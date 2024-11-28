@@ -26,7 +26,7 @@ export default function Inloggen() {
                     <Label htmlFor="password">Wachtwoord</Label>
                     <Input id="password" name="password" type="password" placeholder="wachtwoord123" minLength={8} maxLength={50} required/>
                 </div>
-                <Link className="block text-blue-600 underline hover:text-blue-800" href="/inloggen">Heb je al een account?</Link>
+                <Link className="block underline text-blue-600 dark:text-blue-400 hover:opacity-75" href="/inloggen">Heb je al een account?</Link>
                 {result && result.status === 0 &&
                     <strong className="block font-normal text-red-500">{result.message}</strong>
                 }
