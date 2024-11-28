@@ -39,6 +39,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PAGE_COUNT = 8;
 
@@ -71,34 +72,37 @@ export default function Gebruikers() {
                 <Input className="max-w-sm" placeholder="Filter op naam en email" name="filter" defaultValue={filter}/>
                 <Button type="submit">Filter</Button>
             </form>
-            {isLoading ? <>
-                <small className="block italic">Aan het laden...</small>
-            </> : error ? <>
+            {error ? <>
                 <strong>Er is een probleem opgetreden</strong>
-            </> : users && <>
-                <DataTable data={users} columns={[
-                    {
-                        accessorKey: "id",
-                        header: "ID",
-                    },
-                    {
-                        accessorKey: "name",
-                        header: "Naam",
-                    },
-                    {
-                        accessorKey: "email",
-                        header: "Email",
-                    },
-                    {
-                        accessorKey: "role",
-                        header: "Rol",
-                    },
-                    {
-                        id: "actions",
-                        enableHiding: true,
-                        cell: ({ row }) => <ActionDropdown user={row.original} refresh={fetchUsers}/>
-                    }
-                ]}/>
+            </> : <>
+                <DataTable
+                    isLoading={isLoading || !users}
+                    pageCount={PAGE_COUNT}
+                    data={users!}
+                    columns={[
+                        {
+                            accessorKey: "id",
+                            header: "ID",
+                        },
+                        {
+                            accessorKey: "name",
+                            header: "Naam",
+                        },
+                        {
+                            accessorKey: "email",
+                            header: "Email",
+                        },
+                        {
+                            accessorKey: "role",
+                            header: "Rol",
+                        },
+                        ...(isLoading || !users) ? [] : [{
+                            id: "actions",
+                            enableHiding: true,
+                            cell: ({ row }: any) => <ActionDropdown user={row.original} refresh={fetchUsers}/>
+                        }]
+                    ]}
+                />
                 {count ? <TablePagination page={page} count={count}/> : undefined}
             </>}
         </>
