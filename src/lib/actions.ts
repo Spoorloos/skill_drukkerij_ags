@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@supabase/supabase-js";
-import { dateToString, dateWithTime } from "@/lib/utils";
 import { getServerSession, type Session } from "next-auth";
 import authOptions from "@/app/api/auth/authOptions";
 import { redirect } from "next/navigation";
@@ -96,8 +95,8 @@ export async function signupAction(
 
 export async function getAppointmentTimes(date: Date, now: Date) {
     const result = await supabase.rpc("get_available_times", {
-        input_date: dateToString(date),
-        now: dateWithTime(now),
+        input_date: date.toLocaleDateString("en-US"),
+        now: now.toLocaleString("en-US", { timeZone: "Europe/Amsterdam" }),
     });
 
     if (result.error || !result.data) {
