@@ -52,19 +52,24 @@ export default function Appointment() {
                     <Label className="block">Dag en tijd</Label>
                     <div className="flex flex-wrap gap-4">
                         <div className="flex-1">
-                            <DatePicker date={date} setDate={setDate} fromDate={new Date()}/>
-                            <input name="date" type="date" defaultValue={date?.toLocaleDateString("en-CA")} readOnly hidden/>
+                            <DatePicker date={date} setDate={setDate} fromDate={new Date()} required/>
+                            <input name="date" type="date" value={date?.toLocaleDateString("en-US")} readOnly hidden/>
                         </div>
                         <div className="flex-1">
-                            <Select name="time" required>
+                            <Select name="time" disabled={!times || times.length < 1} required>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Selecteer een tijd"/>
+                                    <SelectValue placeholder={!times || times.length < 1
+                                        ? "Geen tijden op deze dag"
+                                        : "Selecteer een tijd"
+                                    }/>
                                 </SelectTrigger>
-                                {times && <SelectContent>
-                                    {times.map((time, index) =>
-                                        <SelectItem value={time} key={index}>{time.slice(0,5)}</SelectItem>
-                                    )}
-                                </SelectContent>}
+                                {times &&
+                                    <SelectContent>
+                                        {times.map((time, index) =>
+                                            <SelectItem value={time} key={index}>{time.slice(0,5)}</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                }
                             </Select>
                         </div>
                     </div>
