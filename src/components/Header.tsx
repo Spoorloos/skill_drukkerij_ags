@@ -25,7 +25,7 @@ export default function Header() {
         <header className={cn("w-full top-0 z-50 flex gap-4 items-center justify-between p-3 border-b border-sidebar-border bg-background", toggled && "flex-col justify-start items-stretch fixed")}>
             <div className="flex items-center justify-between w-full">
                 <Link href="/"><h1 className="font-bold">Drukkerij AGS</h1></Link>
-                <button className="relative z-50 block w-10 h-8 sm:hidden" onClick={() => setToggled(x => !x)} aria-label="Menu button" aria-expanded={toggled}>
+                <button className="relative z-50 block w-9 h-7 m-1 sm:hidden" onClick={() => setToggled(x => !x)} aria-label="Menu button" aria-expanded={toggled}>
                     <span className={cn("hamburger-line", toggled ? "top-1/2 -translate-y-1/2 rotate-45" : "top-0")} />
                     <span className={cn("hamburger-line top-1/2 -translate-y-1/2", toggled && "opacity-0")} />
                     <span className={cn("hamburger-line", toggled ? "top-1/2 -translate-y-1/2 -rotate-45" : "top-full -translate-y-full")} />
@@ -44,8 +44,8 @@ export default function Header() {
                         <Link className={buttonVariants({ variant: "default" })} href="/inloggen">Inloggen</Link>
                     </>
                 ) : <>
-                    <Skeleton className="w-[10ch] h-9 px-4 py-2"/>
-                    <Skeleton className="w-[9ch] h-9 px-4 py-2"/>
+                    <Skeleton className="sm:w-[10ch] h-9 px-4 py-2"/>
+                    <Skeleton className="sm:w-[9ch] h-9 px-4 py-2"/>
                 </>}
             </nav>
         </header>
