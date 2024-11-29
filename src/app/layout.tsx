@@ -20,7 +20,7 @@ export default function RootLayout({ children }: RootLayout) {
             <body className={`${GeistSans.className} antialiased flex flex-col min-h-screen`}>
                 <ThemeProvider
                     attribute="class"
-                    defaultTheme="dark"
+                    defaultTheme="system"
                     enableSystem
                 >
                     <AuthProvider>
