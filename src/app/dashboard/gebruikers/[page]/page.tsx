@@ -2,7 +2,6 @@
 
 import DataTable from "@/components/DataTable";
 import { useEffect, useState, useTransition } from "react";
-import { getPages } from "@/lib/utils";
 import { getUsers, deleteUser, updateUser } from "@/lib/actions";
 import { useParams, useSearchParams } from "next/navigation";
 import { User } from "next-auth";
@@ -32,14 +31,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination";
+import TablePagination from "@/components/TablePagination";
 
 const PAGE_COUNT = 8;
 
@@ -103,44 +95,15 @@ export default function Gebruikers() {
                         }]
                     ]}
                 />
-                {count ? <TablePagination page={page} count={count}/> : undefined}
+                {!count ? undefined :
+                    <TablePagination
+                        link="/dashboard/gebruikers"
+                        page={page}
+                        count={Math.ceil(count / PAGE_COUNT)}
+                    />
+                }
             </>}
         </>
-    );
-}
-
-type TablePagination = Readonly<{
-    page: number;
-    count: number;
-}>;
-
-function TablePagination({ page, count }: TablePagination) {
-    const searchParams = useSearchParams();
-    const pageCount = Math.ceil(count / PAGE_COUNT);
-    const pages = getPages(page, pageCount);
-
-    return (
-        <Pagination>
-            <PaginationContent>
-                {page <= 1 ? undefined :
-                    <PaginationItem>
-                        <PaginationPrevious href={`/dashboard/gebruikers/${page - 1}?${searchParams}`}/>
-                    </PaginationItem>
-                }
-                {pages.map(x =>
-                    <PaginationLink
-                        href={`/dashboard/gebruikers/${x}?${searchParams}`}
-                        isActive={x === page}
-                        key={x}
-                    >{x}</PaginationLink>
-                )}
-                {page >= pageCount ? undefined :
-                    <PaginationItem>
-                        <PaginationNext href={`/dashboard/gebruikers/${page + 1}?${searchParams}`}/>
-                    </PaginationItem>
-                }
-            </PaginationContent>
-        </Pagination>
     );
 }
 
