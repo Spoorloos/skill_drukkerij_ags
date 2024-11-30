@@ -22,11 +22,9 @@ export default function TablePagination({ link, page, count }: TablePagination) 
     return (
         <Pagination>
             <PaginationContent>
-                {page <= 1 ? undefined :
-                    <PaginationItem>
-                        <PaginationPrevious href={`${link}/${page - 1}?${searchParams}`}/>
-                    </PaginationItem>
-                }
+                <PaginationItem className={page <= 1 ? "invisible" : undefined}>
+                    <PaginationPrevious href={`${link}/${page - 1}?${searchParams}`}/>
+                </PaginationItem>
                 {pages.map(x =>
                     <PaginationLink
                         href={`${link}/${x}?${searchParams}`}
@@ -34,11 +32,9 @@ export default function TablePagination({ link, page, count }: TablePagination) 
                         key={x}
                     >{x}</PaginationLink>
                 )}
-                {page >= count ? undefined :
-                    <PaginationItem>
-                        <PaginationNext href={`${link}/${page + 1}?${searchParams}`}/>
-                    </PaginationItem>
-                }
+                <PaginationItem className={page >= count ? "invisible" : undefined}>
+                    <PaginationNext href={`${link}/${page + 1}?${searchParams}`}/>
+                </PaginationItem>
             </PaginationContent>
         </Pagination>
     );

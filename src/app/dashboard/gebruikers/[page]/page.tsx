@@ -4,7 +4,6 @@ import DataTable from "@/components/DataTable";
 import { useEffect, useState, useTransition } from "react";
 import { getUsers, deleteUser, updateUser } from "@/lib/actions";
 import { useParams, useSearchParams } from "next/navigation";
-import { type ColumnDef } from "@tanstack/react-table";
 import { type User } from "next-auth";
 import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -66,8 +65,7 @@ export default function Gebruikers() {
             </> : <>
                 <DataTable
                     isLoading={isLoading || !data?.data}
-                    pageCount={PAGE_COUNT}
-                    data={data?.data!}
+                    data={data?.data || new Array(PAGE_COUNT).fill({})}
                     columns={[
                         {
                             accessorKey: "id",
@@ -86,12 +84,18 @@ export default function Gebruikers() {
                             header: "Rol",
 
                         },
-                        ...(isLoading || !data?.data) ? [] : [{
+                        {
                             id: "actions",
                             enableHiding: true,
                             enableResizing: false,
-                            cell: ({ row }) => <ActionDropdown user={row.original} refresh={fetchUsers}/>
-                        } as ColumnDef<User>]
+                            cell: ({ row }) => (
+                                <ActionDropdown
+                                    user={row.original}
+                                    refresh={fetchUsers}
+                                    isLoading={isLoading || !data?.data}
+                                />
+                            )
+                        },
                     ]}
                 />
                 {!data?.count ? undefined :
@@ -109,9 +113,10 @@ export default function Gebruikers() {
 type ActionDropdown = Readonly<{
     user: User;
     refresh?: () => void;
+    isLoading: boolean;
 }>;
 
-function ActionDropdown({ user, refresh }: ActionDropdown) {
+function ActionDropdown({ user, refresh, isLoading }: ActionDropdown) {
     return (
         <div className="space-x-2 transition-opacity duration-100 opacity-0 size-full text-end group-hover:opacity-100">
             <TooltipProvider
@@ -124,7 +129,7 @@ function ActionDropdown({ user, refresh }: ActionDropdown) {
                         <TooltipContent>Aanpassen</TooltipContent>
                         <TooltipTrigger asChild>
                             <DialogTrigger asChild>
-                                <Button variant="outline" className="w-8 h-8 p-0">
+                                <Button variant="outline" className="w-8 h-8 p-0" disabled={isLoading}>
                                     <Edit/>
                                 </Button>
                             </DialogTrigger>
@@ -181,7 +186,7 @@ function ActionDropdown({ user, refresh }: ActionDropdown) {
                         <TooltipContent>Verwijderen</TooltipContent>
                         <TooltipTrigger asChild>
                             <DialogTrigger asChild>
-                                <Button variant="outline" className="w-8 h-8 p-0">
+                                <Button variant="outline" className="w-8 h-8 p-0" disabled={isLoading}>
                                     <Trash2 className="text-red-500"/>
                                 </Button>
                             </DialogTrigger>

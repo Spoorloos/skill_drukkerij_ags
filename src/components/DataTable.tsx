@@ -20,21 +20,18 @@ type DataTable<T> = Readonly<{
     columns: ColumnDef<T>[];
     data: T[];
     isLoading: boolean;
-    pageCount: number;
 }>;
 
 export default function DataTable<T extends Record<string, unknown>>({
     columns,
     data,
     isLoading,
-    pageCount,
 }: DataTable<T>) {
     const table = useReactTable({
+        data,
         columns,
-        data: isLoading ? new Array(pageCount).fill({}) : data,
         getCoreRowModel: getCoreRowModel(),
         manualFiltering: true,
-        pageCount,
     });
 
     return (
@@ -44,7 +41,7 @@ export default function DataTable<T extends Record<string, unknown>>({
                     {table.getHeaderGroups().map(headerGroup =>
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map(header =>
-                                <TableHead key={header.id}>
+                                <TableHead key={header.id} style={{ width: `${header.getSize()}rem` }}>
                                     {header.isPlaceholder ? null : flexRender(
                                         header.column.columnDef.header,
                                         header.getContext()
@@ -60,7 +57,9 @@ export default function DataTable<T extends Record<string, unknown>>({
                             {row.getVisibleCells().map(cell =>
                                 <TableCell key={cell.id}>
                                     {flexRender(
-                                        isLoading ? <Skeleton className="w-[10ch] h-4 my-2 rounded-full"/> : cell.column.columnDef.cell,
+                                        (isLoading && cell.column.columnDef.id !== "actions")
+                                            ? <Skeleton className="w-[10ch] h-4 my-2 rounded-full"/>
+                                            : cell.column.columnDef.cell,
                                         cell.getContext()
                                     )}
                                 </TableCell>
