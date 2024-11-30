@@ -1,24 +1,27 @@
 "use server";
 
 import { createClient } from "@supabase/supabase-js";
-import { getServerSession, type Session } from "next-auth";
+import { getServerSession } from "next-auth/next";
+import { type Session } from "next-auth";
 import authOptions from "@/app/api/auth/authOptions";
 import { redirect } from "next/navigation";
 import { hash } from "bcrypt";
 import { type Database } from "@/../database";
 import { appointmentSchema, signupSchema, userDataSchema } from "@/lib/schemas";
+import { z } from "zod";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-type ActionResult = {
+type ActionResult<T = unknown> = {
     message?: string | undefined;
-    status: number;
+    status: 0 | 1;
+    data?: T;
 }
 
 export async function appointmentSubmit(
     _: ActionResult | null,
     formData: FormData
-): Promise<ActionResult> {
+): Promise<ActionResult<z.infer<typeof appointmentSchema>>> {
     // Get user
     const user = await getUser();
     if (!user) {
@@ -29,7 +32,7 @@ export async function appointmentSubmit(
     }
 
     // Validate form data with zod
-    const { data, success } = appointmentSchema.safeParse({
+    const { data: input, success } = appointmentSchema.safeParse({
         description: formData.get("description"),
         date: formData.get("date"),
         time: formData.get("time"),
@@ -46,8 +49,9 @@ export async function appointmentSubmit(
     // Insert appointment into database with supabase
     const { error } = await supabase
         .from("appointment")
-        .insert(data);
+        .insert(input);
 
+    // Refresh page when done
     return error ?
         {
             message: "Er is een fout opgetreden en we hebben je afspraak niet kunnen registreren.",
@@ -55,7 +59,8 @@ export async function appointmentSubmit(
         } :
         {
             message: "We hebben je afspraak geregistreerd!",
-            status: 1
+            status: 1,
+            data: input,
         };
 }
 
@@ -63,7 +68,7 @@ export async function signupAction(
     _: ActionResult | null,
     formData: FormData
 ): Promise<ActionResult> {
-    const { data, success } = signupSchema.safeParse({
+    const { data: input, success } = signupSchema.safeParse({
         name: formData.get("name"),
         email: formData.get("email"),
         password: formData.get("password"),
@@ -79,8 +84,8 @@ export async function signupAction(
     const { error } = await supabase
         .from("user")
         .insert({
-            ...data,
-            password: await hash(data.password, 12),
+            ...input,
+            password: await hash(input.password, 12),
         });
 
     if (error) {
@@ -159,5 +164,35 @@ export async function updateUser(id: number, data: Record<string, unknown>) {
             password: input.password && await hash(input.password, 12),
             role: input.role,
         })
+        .eq("id", id);
+}
+
+export async function getAppointments(filter?: string, page?: number, pageLength: number = 5) {
+    const user = await getUser();
+    if (!user || user.role !== "Admin") {
+        return;
+    }
+
+    let query = supabase
+        .from("appointment")
+        .select("id, user!inner(name), date, time, description", { count: "exact" })
+        .order("date")
+        .order("time");
+
+    if (filter) query = query.ilike("user.name", `%${filter}%`);
+    if (page) query = query.range((page - 1) * pageLength, page * pageLength - 1);
+
+    return await query;
+}
+
+export async function deleteAppointment(id: number) {
+    const user = await getUser();
+    if (!user || user.role !== "Admin") {
+        return;
+    }
+
+    return await supabase
+        .from("appointment")
+        .delete()
         .eq("id", id);
 }

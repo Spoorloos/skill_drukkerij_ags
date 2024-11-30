@@ -4,14 +4,9 @@ import DataTable from "@/components/DataTable";
 import { useEffect, useState, useTransition } from "react";
 import { getUsers, deleteUser, updateUser } from "@/lib/actions";
 import { useParams, useSearchParams } from "next/navigation";
-import { User } from "next-auth";
-import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem
-} from "@/components/ui/dropdown-menu";
-import { Ellipsis } from "lucide-react";
+import { type ColumnDef } from "@tanstack/react-table";
+import { type User } from "next-auth";
+import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -21,6 +16,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    DialogClose,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -32,6 +28,11 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import TablePagination from "@/components/TablePagination";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const PAGE_COUNT = 8;
 
@@ -41,17 +42,12 @@ export default function Gebruikers() {
     const page = parseInt(String(params.page)) || 1;
     const filter = searchParams.get("filter") || undefined;
 
-    const [ users, setUsers ] = useState<User[]>();
-    const [ error, setError ] = useState<boolean>();
-    const [ count, setCount ] = useState<number>();
     const [ isLoading, startTransition ] = useTransition();
+    const [ data, setData ] = useState<Awaited<ReturnType<typeof getUsers>>>();
 
     const fetchUsers = () => {
         startTransition(async () => {
-            const data = await getUsers(filter, page, PAGE_COUNT);
-            setUsers(data?.data ?? undefined);
-            setError(!!data?.error?.message);
-            setCount(data?.count ?? undefined);
+            setData(await getUsers(filter, page, PAGE_COUNT));
         });
     }
 
@@ -64,13 +60,13 @@ export default function Gebruikers() {
                 <Input className="max-w-sm" placeholder="Filter op naam en email" name="filter" defaultValue={filter}/>
                 <Button type="submit">Filter</Button>
             </form>
-            {error ? <>
-                <strong>Er is een probleem opgetreden</strong>
+            {data?.error ? <>
+                <strong className="block">Er is een probleem opgetreden</strong>
             </> : <>
                 <DataTable
-                    isLoading={isLoading || !users}
+                    isLoading={isLoading || !data?.data}
                     pageCount={PAGE_COUNT}
-                    data={users!}
+                    data={data?.data!}
                     columns={[
                         {
                             accessorKey: "id",
@@ -87,19 +83,21 @@ export default function Gebruikers() {
                         {
                             accessorKey: "role",
                             header: "Rol",
+
                         },
-                        ...(isLoading || !users) ? [] : [{
+                        ...(isLoading || !data?.data) ? [] : [{
                             id: "actions",
                             enableHiding: true,
-                            cell: ({ row }: any) => <ActionDropdown user={row.original} refresh={fetchUsers}/>
-                        }]
+                            enableResizing: false,
+                            cell: ({ row }) => <ActionDropdown user={row.original} refresh={fetchUsers}/>
+                        } as ColumnDef<User>]
                     ]}
                 />
-                {!count ? undefined :
+                {!data?.count ? undefined :
                     <TablePagination
                         link="/dashboard/gebruikers"
                         page={page}
-                        count={Math.ceil(count / PAGE_COUNT)}
+                        count={Math.ceil(data.count / PAGE_COUNT)}
                     />
                 }
             </>}
@@ -109,92 +107,93 @@ export default function Gebruikers() {
 
 type ActionDropdown = Readonly<{
     user: User;
-    refresh?: Function;
+    refresh?: () => void;
 }>;
 
 function ActionDropdown({ user, refresh }: ActionDropdown) {
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <div className="size-full text-end">
-                    <Button variant="ghost" className="w-8 h-8 p-0">
-                        <Ellipsis/>
-                    </Button>
-                </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <EditDialog user={user} refresh={refresh}>
-                    <DropdownMenuItem onSelect={e => e.preventDefault()}>Aanpassen</DropdownMenuItem>
-                </EditDialog>
-                <DropdownMenuItem
-                    className="text-red-500 focus:text-red-500"
-                    onClick={() => {
-                        deleteUser(user.id);
-                        refresh?.();
-                    }}
-                >Verwijder</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
-}
-
-type EditDialog = Readonly<{
-    children: React.ReactNode;
-    user: User;
-    refresh?: Function;
-}>;
-
-function EditDialog({ children, user, refresh }: EditDialog) {
-    const formAction = async (formData: FormData) => {
-        await updateUser(user.id, {
-            name: formData.get("name"),
-            email: formData.get("email"),
-            password: formData.get("password") || undefined,
-            role: formData.get("role"),
-        });
-        refresh?.();
-    }
-
-    return (
-        <Dialog>
-            <DialogTrigger asChild>
-                {children}
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Gebruiker aanpassen</DialogTitle>
-                    <DialogDescription>Maak aanpassingen aan een gebruiker's informatie en klik op opslaan als je klaar bent.</DialogDescription>
-                </DialogHeader>
-                <form className="contents" action={formAction}>
-                    <div className="space-y-2">
-                        <Label htmlFor="user-name">Naam</Label>
-                        <Input id="user-name" name="name" defaultValue={user.name} minLength={5} maxLength={50} required/>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="user-email">Email</Label>
-                        <Input id="user-email" name="email" type="email" defaultValue={user.email} minLength={5} maxLength={75} required/>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="user-password">Wachtwoord</Label>
-                        <Input id="user-password" name="password" placeholder="wachtwoord123" minLength={8} maxLength={50}/>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Rol</Label>
-                        <Select name="role" defaultValue={user.role}>
-                            <SelectTrigger>
-                                <SelectValue defaultValue={user.role}/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Admin">Admin</SelectItem>
-                                <SelectItem value="Gebruiker">Gebruiker</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+        <div className="space-x-2 transition-opacity duration-100 opacity-0 size-full text-end group-hover:opacity-100">
+            <Dialog>
+                <Tooltip delayDuration={700}>
+                    <TooltipContent>Aanpassen</TooltipContent>
+                    <TooltipTrigger asChild>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" className="w-8 h-8 p-0">
+                                <Edit/>
+                            </Button>
+                        </DialogTrigger>
+                    </TooltipTrigger>
+                </Tooltip>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Gebruiker aanpassen</DialogTitle>
+                        <DialogDescription>Maak aanpassingen aan een gebruiker's informatie en klik op opslaan als je klaar bent.</DialogDescription>
+                    </DialogHeader>
+                    <form className="contents" action={formData => {
+                        updateUser(user.id, {
+                            name: formData.get("name"),
+                            email: formData.get("email"),
+                            password: formData.get("password") || undefined,
+                            role: formData.get("role"),
+                        }).then(refresh);
+                    }}>
+                        <div className="space-y-2">
+                            <Label htmlFor="user-name">Naam</Label>
+                            <Input id="user-name" name="name" defaultValue={user.name} minLength={5} maxLength={50} required/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="user-email">Email</Label>
+                            <Input id="user-email" name="email" type="email" defaultValue={user.email} minLength={5} maxLength={75} required/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="user-password">Wachtwoord</Label>
+                            <Input id="user-password" name="password" placeholder="wachtwoord123" minLength={8} maxLength={50}/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Rol</Label>
+                            <Select name="role" defaultValue={user.role}>
+                                <SelectTrigger>
+                                    <SelectValue defaultValue={user.role}/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Admin">Admin</SelectItem>
+                                    <SelectItem value="Gebruiker">Gebruiker</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="secondary">Annuleren</Button>
+                            </DialogClose>
+                            <Button type="submit">Aanpassen</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+            <Dialog>
+                <Tooltip delayDuration={700}>
+                    <TooltipContent>Verwijderen</TooltipContent>
+                    <TooltipTrigger asChild>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" className="w-8 h-8 p-0">
+                                <Trash2 className="text-red-500"/>
+                            </Button>
+                        </DialogTrigger>
+                    </TooltipTrigger>
+                </Tooltip>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Gebruiker verwijderen?</DialogTitle>
+                        <DialogDescription>Weet je zeker dat je deze gebruiker wilt verwijderen? Dit kan niet ongedaan worden gemaakt.</DialogDescription>
+                    </DialogHeader>
                     <DialogFooter>
-                        <Button type="submit">Opslaan</Button>
+                        <DialogClose asChild>
+                            <Button variant="secondary">Annuleren</Button>
+                        </DialogClose>
+                        <Button variant="destructive" onClick={() => deleteUser(user.id).then(refresh)}>Verwijder</Button>
                     </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+                </DialogContent>
+            </Dialog>
+        </div>
     );
 }

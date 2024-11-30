@@ -27,7 +27,7 @@ export default function DataTable<T extends Record<string, unknown>>({
     columns,
     data,
     isLoading,
-    pageCount
+    pageCount,
 }: DataTable<T>) {
     const table = useReactTable({
         columns,
@@ -38,7 +38,7 @@ export default function DataTable<T extends Record<string, unknown>>({
     });
 
     return (
-        <div className="rounded-md border">
+        <div className="border rounded-md">
             <Table>
                 <TableHeader>
                     {table.getHeaderGroups().map(headerGroup =>
@@ -56,7 +56,7 @@ export default function DataTable<T extends Record<string, unknown>>({
                 </TableHeader>
                 <TableBody>
                     {table.getRowModel().rows?.map(row =>
-                        <TableRow key={row.id}>
+                        <TableRow className="group" key={row.id}>
                             {row.getVisibleCells().map(cell =>
                                 <TableCell key={cell.id}>
                                     {flexRender(

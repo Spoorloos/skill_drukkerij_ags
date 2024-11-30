@@ -8,10 +8,15 @@ const nextConfig: NextConfig = {
             permanent: true,
         },
         {
+            source: "/dashboard/afspraken",
+            destination: "/dashboard/afspraken/1",
+            permanent: true,
+        },
+        {
             source: "/dashboard/gebruikers",
             destination: "/dashboard/gebruikers/1",
             permanent: true,
-        }
+        },
     ],
 };
 
