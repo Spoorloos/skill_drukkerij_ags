@@ -114,7 +114,11 @@ type ActionDropdown = Readonly<{
 function ActionDropdown({ user, refresh }: ActionDropdown) {
     return (
         <div className="space-x-2 transition-opacity duration-100 opacity-0 size-full text-end group-hover:opacity-100">
-            <TooltipProvider delayDuration={700} skipDelayDuration={50}>
+            <TooltipProvider
+                delayDuration={700}
+                skipDelayDuration={50}
+                disableHoverableContent
+            >
                 <Dialog>
                     <Tooltip>
                         <TooltipContent>Aanpassen</TooltipContent>
