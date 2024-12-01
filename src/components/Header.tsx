@@ -22,7 +22,7 @@ export default function Header() {
     const user = session?.user;
 
     return (
-        <header className="sticky top-0 flex flex-col items-stretch justify-start gap-4 p-3 border-b sm:flex-row sm:items-center sm:justify-between border-sidebar-border bg-background">
+        <header className="sticky top-0 z-50 flex flex-col items-stretch justify-start gap-4 p-3 border-b sm:flex-row sm:items-center sm:justify-between border-sidebar-border bg-background">
             <div className="flex items-center justify-between w-full">
                 <Link href="/">
                     <h1 className="font-bold">Drukkerij AGS</h1>
