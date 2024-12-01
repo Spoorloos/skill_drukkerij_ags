@@ -28,7 +28,7 @@ export default async function DashboardLayout({ children }: DashboardLayout) {
                     icon: <User/>,
                 },
             ]}/>
-            <main className="p-8 pb-0 space-y-4 w-full">
+            <main className="w-full p-8 space-y-4">
                 <SidebarTrigger/>
                 {children}
             </main>

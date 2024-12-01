@@ -14,6 +14,7 @@ import {
     DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Sun, Moon } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 export default function Header() {
     const [ toggled, setToggled ] = useState(false);
@@ -21,16 +22,20 @@ export default function Header() {
     const user = session?.user;
 
     return (
-        <header className={"w-full top-0 z-50 flex gap-4 items-center justify-between p-3 border-b border-sidebar-border bg-background " + (toggled ? "flex-col justify-start items-stretch fixed" : "")}>
+        <header className="sticky top-0 flex flex-col items-stretch justify-start gap-4 p-3 border-b sm:flex-row sm:items-center sm:justify-between border-sidebar-border bg-background">
             <div className="flex items-center justify-between w-full">
-                <Link href="/"><h1 className="font-bold">Drukkerij AGS</h1></Link>
-                <button className="relative z-50 block m-1 w-9 h-7 sm:hidden" onClick={() => setToggled(x => !x)} aria-label="Menu button" aria-expanded={toggled}>
-                    <span className={"hamburger-line " + (toggled ? "top-1/2 -translate-y-1/2 rotate-45" : "top-0")} />
-                    <span className={"hamburger-line top-1/2 -translate-y-1/2 " + (toggled ? "opacity-0" : "")} />
-                    <span className={"hamburger-line " + (toggled ? "top-1/2 -translate-y-1/2 -rotate-45" : "top-full -translate-y-full")} />
+                <Link href="/">
+                    <h1 className="font-bold">Drukkerij AGS</h1>
+                </Link>
+                <button className="size-8 sm:hidden" onClick={() => setToggled(x => !x)}>
+                    {toggled ? (
+                        <X className="size-full"/>
+                    ) : (
+                        <Menu className="size-full"/>
+                    )}
                 </button>
             </div>
-            <nav className={"hidden sm:flex flex-col sm:flex-row gap-2 items-stretch sm:items-center h-full " + (toggled ? "flex" : "")}>
+            <nav className={(toggled ? "flex" : "hidden") + " sm:flex flex-col sm:flex-row gap-2 items-stretch sm:items-center h-full"}>
                 <ThemeSelector/>
                 {status !== "loading" ? (
                     user ? <>
