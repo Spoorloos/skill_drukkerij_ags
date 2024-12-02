@@ -150,9 +150,8 @@ export async function updateUser(id: number, data: Record<string, unknown>) {
         return;
     }
 
-    const { data: input, success, error } = userDataSchema.safeParse(data);
+    const { data: input, success } = userDataSchema.safeParse(data);
     if (!success) {
-        console.log(error);
         return;
     }
 
@@ -175,7 +174,7 @@ export async function getAppointments(filter?: string, page?: number, pageLength
 
     let query = supabase
         .from("appointment")
-        .select("id, user!inner(name), date, time, description", { count: "exact" })
+        .select("id, user!inner(id, name), date, time, description", { count: "exact" })
         .order("date")
         .order("time");
 
@@ -194,5 +193,28 @@ export async function deleteAppointment(id: number) {
     return await supabase
         .from("appointment")
         .delete()
+        .eq("id", id);
+}
+
+export async function updateAppointment(id: number, data: Record<string, unknown>) {
+    const user = await getUser();
+    if (!user || user.role !== "Admin") {
+        return;
+    }
+
+    const { data: input, success, error } = appointmentSchema.safeParse(data);
+    if (!success) {
+        console.log(error);
+        return;
+    }
+
+    return await supabase
+        .from("appointment")
+        .update({
+            user: input.user,
+            date: input.date,
+            time: input.time,
+            description: input.description,
+        })
         .eq("id", id);
 }

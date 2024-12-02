@@ -118,7 +118,7 @@ type ActionDropdown = Readonly<{
 
 function ActionDropdown({ user, refresh, isLoading }: ActionDropdown) {
     return (
-        <div className="space-x-2 transition-opacity duration-100 opacity-0 size-full text-end group-hover:opacity-100">
+        <div className="flex flex-wrap justify-end gap-1 transition-opacity duration-100 opacity-0 size-full group-hover:opacity-100">
             <TooltipProvider
                 delayDuration={700}
                 skipDelayDuration={50}

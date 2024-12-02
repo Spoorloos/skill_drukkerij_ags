@@ -69,9 +69,9 @@ export default function Appointment() {
                                 {(timesLoading || !times) ? (
                                     <Skeleton className="size-full"/>
                                 ) : (
-                                    <Select name="time" disabled={!times || times.length < 1} required>
+                                    <Select name="time" disabled={times.length < 1} required>
                                         <SelectTrigger>
-                                            <SelectValue placeholder={!times || times.length < 1
+                                            <SelectValue placeholder={times.length < 1
                                                 ? "Geen tijden op deze dag"
                                                 : "Selecteer een tijd"
                                             }/>

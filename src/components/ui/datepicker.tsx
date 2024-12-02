@@ -15,7 +15,7 @@ import {
 
 type DatePicker = CalendarProps & Readonly<{
     date: Date | undefined;
-    setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+    setDate: (date: Date | undefined) => void;
 }>;
 
 export function DatePicker({ date, setDate, ...props }: DatePicker) {
@@ -39,7 +39,6 @@ export function DatePicker({ date, setDate, ...props }: DatePicker) {
           selected={date}
           mode="single"
           onSelect={setDate}
-          initialFocus
         />
       </PopoverContent>
     </Popover>
