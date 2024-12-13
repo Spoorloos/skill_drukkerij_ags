@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-type DatePicker = CalendarProps & Readonly<{
+type DatePicker = Omit<CalendarProps, "selected" | "mode" | "onSelect"> & Readonly<{
     date: Date | undefined;
     setDate: (date: Date | undefined) => void;
 }>;

@@ -7,7 +7,7 @@ import authOptions from "@/app/api/auth/authOptions";
 import { redirect } from "next/navigation";
 import { hash } from "bcrypt";
 import { type Database } from "@/../database";
-import { appointmentSchema, signupSchema, userDataSchema } from "@/lib/schemas";
+import { CaptchaResponse, appointmentSchema, signupSchema, userDataSchema } from "@/lib/schemas";
 import { z } from "zod";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
@@ -217,4 +217,21 @@ export async function updateAppointment(id: number, data: Record<string, unknown
             description: input.description,
         })
         .eq("id", id);
+}
+
+export async function validateCaptcha(token: string) {
+    const recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
+    const recaptcha_secret = process.env.RECAPTCHA_SECRET_KEY;
+    const response = await fetch(`${recaptcha_url}?secret=${recaptcha_secret}&response=${token}`);
+    const { data, success: isCorrectType } = CaptchaResponse.safeParse(await response.json());
+
+    if (!isCorrectType || !data.success) {
+        console.log("recaptcha was unsuccesful")
+        return;
+    }
+    if(data.score <0.5){
+        console.log('is a bot')
+        return
+    }
+    console.log('hi')
 }

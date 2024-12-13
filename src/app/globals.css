@@ -90,4 +90,12 @@
     .hamburger-line {
         @apply w-full h-1 bg-current rounded inline-block absolute left-0 transition-all duration-300;
     }
+    .link {
+        @apply font-medium text-blue-600 dark:text-blue-500 hover:underline;
+    }
+    
+}
+
+.grecaptcha-badge {
+    visibility: hidden !important;
 }

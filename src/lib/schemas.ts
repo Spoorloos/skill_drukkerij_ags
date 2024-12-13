@@ -22,3 +22,10 @@ export const userDataSchema = z.object({
     password: z.string().min(8).max(50).optional(),
     role: z.enum([ "Admin", "Gebruiker" ]),
 })
+export const CaptchaResponse = z.object({
+    success: z.boolean(),
+    challenge_ts: z.string(),
+    hostname: z.string(),
+    score: z.number(),
+    action: z.string()
+});

@@ -62,7 +62,7 @@ export default function Appointment() {
                         <Label className="block">Dag en tijd</Label>
                         <div className="flex flex-wrap gap-4">
                             <div className="flex-1">
-                                <DatePicker date={date} setDate={setDate} fromDate={new Date()} required/>
+                                <DatePicker date={date} setDate={setDate} hidden={{ before: new Date() }} required/>
                                 <input name="date" type="date" value={date?.toLocaleDateString("en-CA")} readOnly hidden/>
                             </div>
                             <div className="flex-1">
