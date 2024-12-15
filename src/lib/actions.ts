@@ -18,32 +18,48 @@ type ActionResult<T = unknown> = {
     data?: T;
 }
 
+export async function del() {
+    console.log('fdsnhfds')
+}
+
 export async function appointmentSubmit(
-    _: ActionResult | null,
-    formData: FormData
+    token: string,
+    formData: Record<string, string>
 ): Promise<ActionResult<z.infer<typeof appointmentSchema>>> {
+    console.log(formData);
+
+    console.log('successful');
+
+    // Validate captcha
+    if (!(await validateCaptcha(token))) {
+        return {
+            message: "Failed captcha",
+            status: 0
+        };
+    }
+
     // Get user
     const user = await getUser();
     if (!user) {
         return {
             message: "Je bent niet ingelogt",
-            status: 0,
-        }
+            status: 0
+        };
     }
 
     // Validate form data with zod
     const { data: input, success } = appointmentSchema.safeParse({
-        description: formData.get("description"),
-        date: formData.get("date"),
-        time: formData.get("time"),
-        user: user.id,
+        description: formData.description,
+        date: formData.date,
+        time: formData.time,
+        user: user.id
     });
 
     if (!success) {
         return {
             message: "Er is een probleem met de ingevulde data",
-            status: 0,
-        }
+            status: 0
+        };
     }
 
     // Insert appointment into database with supabase
@@ -51,17 +67,18 @@ export async function appointmentSubmit(
         .from("appointment")
         .insert(input);
 
+    
     // Refresh page when done
-    return error ?
-        {
-            message: "Er is een fout opgetreden en we hebben je afspraak niet kunnen registreren.",
-            status: 0,
-        } :
-        {
-            message: "We hebben je afspraak geregistreerd!",
-            status: 1,
-            data: input,
-        };
+    return error
+        ? {
+              message: "Er is een fout opgetreden en we hebben je afspraak niet kunnen registreren.",
+              status: 0
+          }
+        : {
+              message: "We hebben je afspraak geregistreerd!",
+              status: 1,
+              data: input
+          };
 }
 
 export async function signupAction(
@@ -219,19 +236,16 @@ export async function updateAppointment(id: number, data: Record<string, unknown
         .eq("id", id);
 }
 
-export async function validateCaptcha(token: string) {
+export async function validateCaptcha(
+    token: string,
+    // formData: Record<string, string>
+) {
+    // console.log('Value of bruh:', formData['bruh']);
+
     const recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
     const recaptcha_secret = process.env.RECAPTCHA_SECRET_KEY;
     const response = await fetch(`${recaptcha_url}?secret=${recaptcha_secret}&response=${token}`);
     const { data, success: isCorrectType } = CaptchaResponse.safeParse(await response.json());
 
-    if (!isCorrectType || !data.success) {
-        console.log("recaptcha was unsuccesful")
-        return;
-    }
-    if(data.score <0.5){
-        console.log('is a bot')
-        return
-    }
-    console.log('hi')
+    return isCorrectType && data.success && data.score > 0.5;
 }

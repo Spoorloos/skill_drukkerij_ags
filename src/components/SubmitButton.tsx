@@ -1,15 +1,13 @@
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
-type SubmitButton = Readonly<{
-    className?: string;
+type SubmitButton = ButtonProps & Readonly<{
     isPending?: boolean;
-    children?: React.ReactNode;
 }>;
 
-export default function SubmitButton({ className, isPending, children }: SubmitButton) {
+export default function SubmitButton({ isPending, children, ...props }: SubmitButton) {
     return (
-        <Button type="submit" className={className} disabled={isPending}>
+        <Button type="submit" disabled={isPending} {...props}>
             {isPending && <Loader2 className="animate-spin"/>}
             {children}
         </Button>
