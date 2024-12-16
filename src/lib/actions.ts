@@ -12,19 +12,18 @@ import { z } from "zod";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-type ActionResult<T = unknown> = {
+export type ActionResult<T = unknown> = {
     message?: string | undefined;
     status: 0 | 1;
     data?: T;
 }
 
-
 export async function appointmentSubmit(
-    token: string,
     formData: FormData
 ): Promise<ActionResult<z.infer<typeof appointmentSchema>>> {
     // Validate captcha
-    if (!(await validateCaptcha(token))) {
+    const token = formData.get("g-recaptcha-response")?.toString();
+    if (!token || !(await validateCaptcha(token))) {
         return {
             message: "Failed captcha",
             status: 0
@@ -50,7 +49,7 @@ export async function appointmentSubmit(
 
     if (!success) {
         return {
-            message: "Er is een probleem met de ingevulde data",
+            message: "Er is een probleem met de ingevulde data, zijn alle velden ingevuld?",
             status: 0
         };
     }
