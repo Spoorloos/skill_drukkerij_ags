@@ -66,9 +66,8 @@ export default function Appointment() {
         if (!executeRecaptcha) return;
         if (date) formData.set("date", date.toLocaleDateString("en-CA"));
 
-        const token = await executeRecaptcha();
-
         setLoading(true);
+        const token = await executeRecaptcha();
         setResult(await appointmentSubmit(token, formData));
         setLoading(false);
     }, [executeRecaptcha]);

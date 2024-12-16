@@ -3,40 +3,37 @@
 import SubmitButton from "@/components/SubmitButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useEffect, useRef, useId } from "react";
-import { ActionResult, signupAction } from "@/lib/actions";
+import { useState, useCallback } from "react";
+import { signupAction } from "@/lib/actions";
 import Link from "next/link";
-import Script from "next/script";
 import { toast } from "@/hooks/use-toast";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 export default function Aanmelden() {
-    const formRef = useRef<HTMLFormElement>(null);
     const [isPending, setPending] = useState(false);
-    const submitID = useId();
+    const { executeRecaptcha } = useGoogleReCaptcha();
 
-    useEffect(() => {
-        (window as any)[submitID] = async (token: string) => {
-            if (!formRef.current) return;
+    const submitSignup = useCallback(async (formData: FormData) => {
+        if (!executeRecaptcha) return;
 
-            setPending(true);
-            const result = await signupAction(token, new FormData(formRef.current));
-            setPending(false);
+        setPending(true);
+        const token = await executeRecaptcha();
+        const result = await signupAction(token, formData);
+        setPending(false);
 
-            if (result && result.status === 0) {
-                toast({
-                    variant: "destructive",
-                    title: "Uh oh! Er is iets mis gegaan.",
-                    description: result.message,
-                });
-            }
+        if (result && result.status === 0) {
+            toast({
+                variant: "destructive",
+                title: "Uh oh! Er is iets mis gegaan.",
+                description: result.message,
+            });
         }
-    }, []);
+    }, [executeRecaptcha]);
 
     return (
         <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 p-8">
-            <Script src="https://www.google.com/recaptcha/api.js"/>
             <h1 className="text-3xl font-bold">Aanmelden</h1>
-            <form className="w-full max-w-sm space-y-4" ref={formRef} method="POST">
+            <form className="w-full max-w-sm space-y-4" action={submitSignup}>
                 <div className="space-y-2">
                     <Label htmlFor="name">Volledige Naam</Label>
                     <Input id="name" name="name" placeholder="Je volledige naam" minLength={5} maxLength={50} required />
@@ -50,19 +47,7 @@ export default function Aanmelden() {
                     <Input id="password" name="password" type="password" placeholder="wachtwoord123" minLength={8} maxLength={50} required />
                 </div>
                 <Link className="block underline text-blue-600 dark:text-blue-400 hover:opacity-75" href="/inloggen">Heb je al een account?</Link>
-                <div> {/* This div is necessary because recaptcha makes an invisible div that messes with the spacing */}
-                    <SubmitButton
-                        className="w-full g-recaptcha"
-                        isPending={isPending}
-                        data-sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-                        data-callback={submitID}
-                        data-action="submit"
-                    >Meld je aan</SubmitButton>
-                </div>
-                <strong className="block font-normal text-center opacity-70">
-                    {/* DO NOT REMOVE THIS! or else legal trouble */}
-                    This site is protected by reCAPTCHA and the Google <Link className="link" href="https://policies.google.com/privacy">Privacy Policy</Link> and <Link className="link" href="https://policies.google.com/terms">Terms of Service</Link> apply.
-                </strong>
+                <SubmitButton className="w-full g-recaptcha" isPending={isPending}>Meld je aan</SubmitButton>
             </form>
         </main>
     );
