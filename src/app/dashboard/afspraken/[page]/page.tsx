@@ -196,10 +196,11 @@ function ActionDropdown({ appointment, refresh, isLoading }: ActionDropdown) {
                             <div className="space-y-2">
                                 <Label htmlFor="date">Datum</Label>
                                 <DatePicker
-                                    date={date.current}
-                                    fromDate={new Date()}
                                     required
-                                    setDate={(newDate) => {
+                                    mode="single"
+                                    selected={date.current}
+                                    fromDate={new Date()}
+                                    onSelect={(newDate: Date | undefined) => {
                                         if (newDate) {
                                             date.current = newDate;
                                             updateTimes();
