@@ -19,11 +19,11 @@ export type ActionResult<T = unknown> = {
 }
 
 export async function appointmentSubmit(
+    token: string,
     formData: FormData
 ): Promise<ActionResult<z.infer<typeof appointmentSchema>>> {
     // Validate captcha
-    const token = formData.get("g-recaptcha-response")?.toString();
-    if (!token || !(await validateCaptcha(token))) {
+    if (!(await validateCaptcha(token))) {
         return {
             message: "Failed captcha",
             status: 0
@@ -234,16 +234,11 @@ export async function updateAppointment(id: number, data: Record<string, unknown
         .eq("id", id);
 }
 
-export async function validateCaptcha(
-    token: string,
-) {
-
+export async function validateCaptcha(token: string) {
     const recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
     const recaptcha_secret = process.env.RECAPTCHA_SECRET_KEY;
     const response = await fetch(`${recaptcha_url}?secret=${recaptcha_secret}&response=${token}`);
     const { data, success: isCorrectType } = CaptchaResponse.safeParse(await response.json());
-
-    console.log('recaptcha')
 
     return isCorrectType && data.success && data.score > 0.5;
 }

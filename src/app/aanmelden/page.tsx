@@ -59,6 +59,10 @@ export default function Aanmelden() {
                         data-action="submit"
                     >Meld je aan</SubmitButton>
                 </div>
+                <strong className="block font-normal text-center opacity-70">
+                    {/* DO NOT REMOVE THIS! or else legal trouble */}
+                    This site is protected by reCAPTCHA and the Google <Link className="link" href="https://policies.google.com/privacy">Privacy Policy</Link> and <Link className="link" href="https://policies.google.com/terms">Terms of Service</Link> apply.
+                </strong>
             </form>
         </main>
     );
