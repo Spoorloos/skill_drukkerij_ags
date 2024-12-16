@@ -44,4 +44,4 @@ next-env.d.ts
 # fred's gedeelte
 info/
 .vercel
-src/app/fred_test/
+src/app/fred_test2/

@@ -12,7 +12,7 @@ import { z } from "zod";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-type ActionResult<T = unknown> = {
+export type ActionResult<T = unknown> = {
     message?: string | undefined;
     status: 0 | 1;
     data?: T;
@@ -74,13 +74,18 @@ export async function appointmentSubmit(
 }
 
 export async function signupAction(
-    _: ActionResult | null,
-    formData: FormData
+    // _: ActionResult | null, 
+    formData: FormData,
+    token: string
 ): Promise<ActionResult> {
 
-
-
-
+    if (!(await validateCaptcha(token))) {
+        return {
+            message: "Failed captcha",
+            status: 0
+        };
+    }
+    console.log('hi')
 
 
     const { data: input, success } = signupSchema.safeParse({
@@ -102,6 +107,8 @@ export async function signupAction(
             ...input,
             password: await hash(input.password, 12),
         });
+    console.log('not failed')
+
 
     if (error) {
         return {
@@ -109,6 +116,7 @@ export async function signupAction(
             status: 0,
         }
     }
+
 
     redirect("/inloggen");
 }
@@ -242,6 +250,8 @@ export async function validateCaptcha(
     const recaptcha_secret = process.env.RECAPTCHA_SECRET_KEY;
     const response = await fetch(`${recaptcha_url}?secret=${recaptcha_secret}&response=${token}`);
     const { data, success: isCorrectType } = CaptchaResponse.safeParse(await response.json());
+
+    console.log('recaptcha')
 
     return isCorrectType && data.success && data.score > 0.5;
 }
