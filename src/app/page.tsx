@@ -1,6 +1,6 @@
 "use client";
 
-import { appointmentSubmit, getAppointmentTimes } from "@/lib/actions";
+import { appointmentSubmit, getAppointmentTimes, ActionResult } from "@/lib/actions";
 import { useRef, useTransition, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
@@ -17,7 +17,10 @@ import {
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Script from "next/script";
-import Link from 'next/link';
+import Link from "next/link";
+import { z } from "zod";
+import { appointmentSchema } from "@/lib/schemas";
+import { useToast } from "@/hooks/use-toast";
 
 declare global {
     interface Window {
@@ -28,21 +31,24 @@ declare global {
 export default function Appointment() {
     const router = useRouter();
     const session = useSession();
-    const [date, setDate] = useState<Date | undefined>(new Date());
+    const date = useRef<Date | undefined>(undefined);
     const [times, setTimes] = useState<string[]>();
     const [timesLoading, startTransition] = useTransition();
+    const { toast } = useToast();
 
-    const [result, setResult] = useState<Awaited<ReturnType<typeof appointmentSubmit>>>();
+    const [result, setResult] = useState<ActionResult<z.infer<typeof appointmentSchema>>>();
     const [isLoading, setLoading] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
 
-    useEffect(() => {
-        if (date) {
+    const updateDate = (newDate: Date | undefined) => {
+        date.current = newDate;
+
+        if (newDate) {
             startTransition(async () => {
-                setTimes(await getAppointmentTimes(date, new Date()));
+                setTimes(await getAppointmentTimes(newDate, new Date()));
             });
         }
-    }, [date]);
+    }
 
     useEffect(() => {
         if (session.status !== "loading" && !session.data) {
@@ -51,11 +57,26 @@ export default function Appointment() {
     }, [session]);
 
     useEffect(() => {
-        window.RecaptchaOnSubmit = async (token) => {
+        if (result && result.status === 0) {
+            toast({
+                variant: "destructive",
+                title: "Uh oh! Er is iets mis gegaan.",
+                description: result.message ?? "Er is een fout opgetreden",
+            });
+        }
+    }, [result]);
+
+    useEffect(() => {
+        window.RecaptchaOnSubmit = async () => {
             if (!formRef.current) return;
 
+            const formData = new FormData(formRef.current);
+            if (date.current) {
+                formData.set("date", date.current.toLocaleDateString("en-CA"));
+            }
+
             setLoading(true);
-            setResult(await appointmentSubmit(token, new FormData(formRef.current)));
+            setResult(await appointmentSubmit(formData));
             setLoading(false);
         };
     }, []);
@@ -66,34 +87,38 @@ export default function Appointment() {
                 <h1 className="text-3xl font-bold text-center">Je afspraak is aangemaakt</h1>
                 <p className="text-center">
                     Je wordt op <strong>{new Date(`${result.data?.date} ${result.data?.time}`).toLocaleString()}</strong> bij (onze locatie) verwacht.
-                    <br />
+                    <br/>
                     Je krijgt binnen enkele minuten een bevestigings email. Je kunt deze pagina nu sluiten.
                 </p>
             </> : <>
-                <Script src="https://www.google.com/recaptcha/api.js" />
+                <Script src="https://www.google.com/recaptcha/api.js"/>
                 <h1 className="text-3xl font-bold text-center">Maak een afspraak</h1>
                 <form className="space-y-4 w-[clamp(10rem,70vw,30rem)]" ref={formRef}>
                     <div className="space-y-2">
                         <Label htmlFor="description">Beschrijving</Label>
-                        <Textarea className="min-h-48" id="description" name="description" placeholder="Leg uitgebreid uit wat je wilt afdrukken" maxLength={1000} required />
+                        <Textarea className="min-h-48" id="description" name="description" placeholder="Leg uitgebreid uit wat je wilt afdrukken" maxLength={1000} required/>
                     </div>
                     <div className="space-y-2">
                         <Label className="block">Dag en tijd</Label>
                         <div className="flex flex-wrap gap-4">
                             <div className="flex-1">
-                                <DatePicker date={date} setDate={setDate} hidden={{ before: new Date() }} required />
-                                <input name="date" type="date" value={date?.toLocaleDateString("en-CA")} readOnly hidden />
+                                <DatePicker
+                                    selected={date.current}
+                                    onSelect={updateDate}
+                                    mode="single"
+                                    hidden={{ before: new Date() }}
+                                    required/>
                             </div>
                             <div className="flex-1">
                                 {(timesLoading || !times) ? (
-                                    <Skeleton className="size-full" />
+                                    <Skeleton className="size-full"/>
                                 ) : (
                                     <Select name="time" disabled={times.length < 1} required>
                                         <SelectTrigger>
                                             <SelectValue placeholder={times.length < 1
                                                 ? "Geen tijden op deze dag"
                                                 : "Selecteer een tijd"
-                                            } />
+                                            }/>
                                         </SelectTrigger>
                                         <SelectContent>
                                             {times.map((time, index) =>
@@ -105,9 +130,6 @@ export default function Appointment() {
                             </div>
                         </div>
                     </div>
-                    {result && result.status === 0 &&
-                        <p className="text-red-500">{result.message}</p>
-                    }
                     <div className="text-end">
                         <SubmitButton
                             className="w-full sm:w-auto g-recaptcha"
@@ -119,7 +141,7 @@ export default function Appointment() {
                             Maak een afspraak
                         </SubmitButton>
                     </div>
-                    <strong className="block font-normal text-center opacity-70 hover:opacity-100 transition-opacity duration-100">
+                    <strong className="block font-normal text-center opacity-70">
                         {/* DO NOT REMOVE THIS! or else legal trouble */}
                         This site is protected by reCAPTCHA and the Google <Link className="link" href="https://policies.google.com/privacy">Privacy Policy</Link> and <Link className="link" href="https://policies.google.com/terms">Terms of Service</Link> apply.
                     </strong>

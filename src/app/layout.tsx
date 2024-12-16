@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import AuthProvider from "@/components/AuthProvider";
 import ThemeProvider from "@/components/ThemeProvider";
 import { GeistSans } from "geist/font/sans";
-import { ReCaptchaProvider } from "next-recaptcha-v3";
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
     title: "Drukkerij AGS",
@@ -25,8 +25,9 @@ export default function RootLayout({ children }: RootLayout) {
                     enableSystem
                 >
                     <AuthProvider>
-                            <Header />
-                            {children}
+                        <Header/>
+                        <Toaster/>
+                        {children}
                     </AuthProvider>
                 </ThemeProvider>
             </body>

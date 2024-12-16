@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const appointmentSchema = z.object({
-    description: z.string().max(1000),
+    description: z.string().min(1).max(1000),
     date: z.string().date(),
     time: z.string().time(),
     user: z.number().nonnegative(),
