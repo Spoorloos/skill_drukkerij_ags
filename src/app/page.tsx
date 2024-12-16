@@ -1,6 +1,6 @@
 "use client";
 
-import { appointmentSubmit, getAppointmentTimes, ActionResult } from "@/lib/actions";
+import { appointmentSubmit, getAppointmentTimes } from "@/lib/actions";
 import { useTransition, useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
@@ -16,16 +16,16 @@ import {
 } from "@/components/ui/select";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { z } from "zod";
-import { appointmentSchema } from "@/lib/schemas";
 import { toast } from "@/hooks/use-toast";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
-declare global {
-    interface Window {
-        RecaptchaOnSubmit: (token: string) => void;
-    }
-}
+const timeFormatOptions: Intl.DateTimeFormatOptions = {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit"
+};
 
 export default function Appointment() {
     const router = useRouter();
@@ -33,9 +33,11 @@ export default function Appointment() {
     const date = useRef<Date | undefined>(undefined);
     const [times, setTimes] = useState<string[]>();
     const [timesLoading, startTransition] = useTransition();
-    const [result, setResult] = useState<ActionResult<z.infer<typeof appointmentSchema>>>();
-    const [isLoading, setLoading] = useState(false);
     const {executeRecaptcha} = useGoogleReCaptcha();
+
+    const [data, setData] = useState<FormData>();
+    const [error, setError] = useState<Error>();
+    const [isLoading, setLoading] = useState(false);
 
     const setDate = (value: Date | undefined) => {
         date.current = value;
@@ -51,10 +53,17 @@ export default function Appointment() {
         if (!executeRecaptcha) return;
         if (date.current) formData.set("date", date.current.toLocaleDateString("en-CA"));
 
-        setLoading(true);
-        const token = await executeRecaptcha();
-        setResult(await appointmentSubmit(token, formData));
-        setLoading(false);
+        try {
+            setLoading(true);
+            await appointmentSubmit(await executeRecaptcha("appointment"), formData);
+            setData(formData);
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error);
+            }
+        } finally {
+            setLoading(false);
+        }
     }, [executeRecaptcha]);
 
     useEffect(() => setDate(new Date()), []);
@@ -66,21 +75,21 @@ export default function Appointment() {
     }, [session]);
 
     useEffect(() => {
-        if (result && result.status === 0) {
+        if (error) {
             toast({
                 variant: "destructive",
                 title: "Uh oh! Er is iets mis gegaan.",
-                description: result.message ?? "Er is een fout opgetreden",
+                description: error.message ?? "Er is een fout opgetreden",
             });
         }
-    }, [result]);
+    }, [error]);
 
     return session.data && (
         <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 p-8">
-            {result && result.status === 1 ? <>
+            {data ? <>
                 <h1 className="text-3xl font-bold text-center">Je afspraak is aangemaakt</h1>
                 <p className="text-center">
-                    Je wordt op <strong>{new Date(`${result.data?.date} ${result.data?.time}`).toLocaleString()}</strong> bij (onze locatie) verwacht.
+                    Je wordt <strong>{new Date(`${data.get("date")} ${data.get("time")}`).toLocaleString(undefined, timeFormatOptions)}</strong> bij (onze locatie) verwacht.
                     <br/>
                     Je krijgt binnen enkele minuten een bevestigings email. Je kunt deze pagina nu sluiten.
                 </p>

@@ -16,17 +16,19 @@ export default function Aanmelden() {
     const submitSignup = useCallback(async (formData: FormData) => {
         if (!executeRecaptcha) return;
 
-        setPending(true);
-        const token = await executeRecaptcha();
-        const result = await signupAction(token, formData);
-        setPending(false);
-
-        if (result && result.status === 0) {
-            toast({
-                variant: "destructive",
-                title: "Uh oh! Er is iets mis gegaan.",
-                description: result.message,
-            });
+        try {
+            setPending(true);
+            await signupAction(await executeRecaptcha("login"), formData);
+        } catch (error) {
+            if (error instanceof Error) {
+                toast({
+                    variant: "destructive",
+                    title: "Uh oh! Er is iets mis gegaan.",
+                    description: error.message,
+                });
+            }
+        } finally {
+            setPending(false);
         }
     }, [executeRecaptcha]);
 

@@ -8,35 +8,17 @@ import { redirect } from "next/navigation";
 import { hash } from "bcrypt";
 import { type Database } from "@/../database";
 import { CaptchaResponse, appointmentSchema, signupSchema, userDataSchema } from "@/lib/schemas";
-import { z } from "zod";
 
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export type ActionResult<T = unknown> = {
-    message?: string | undefined;
-    status: 0 | 1;
-    data?: T;
-}
-
-export async function appointmentSubmit(
-    token: string,
-    formData: FormData
-): Promise<ActionResult<z.infer<typeof appointmentSchema>>> {
+export async function appointmentSubmit(token: string, formData: FormData) {
     // Validate captcha
-    if (!(await validateCaptcha(token))) {
-        return {
-            message: "Failed captcha",
-            status: 0
-        };
-    }
+    await validateCaptcha(token);
 
     // Get user
     const user = await getUser();
     if (!user) {
-        return {
-            message: "Je bent niet ingelogt",
-            status: 0
-        };
+        throw new Error("Je bent niet ingelogt");
     }
 
     // Validate form data with zod
@@ -48,10 +30,7 @@ export async function appointmentSubmit(
     });
 
     if (!success) {
-        return {
-            message: "Er is een probleem met de ingevulde data, zijn alle velden ingevuld?",
-            status: 0
-        };
+        throw new Error("Er is een probleem met de ingevulde data, zijn alle velden ingevuld?")
     }
 
     // Insert appointment into database with supabase
@@ -59,30 +38,16 @@ export async function appointmentSubmit(
         .from("appointment")
         .insert(input);
 
-
-    return error
-        ? {
-            message: "Er is een fout opgetreden en we hebben je afspraak niet kunnen registreren.",
-            status: 0
-        }
-        : {
-            message: "We hebben je afspraak geregistreerd!",
-            status: 1,
-            data: input
-        }
+    if (error) {
+        throw new Error("Er is een fout opgetreden en we hebben je afspraak niet kunnen registreren.");
+    }
 }
 
-export async function signupAction(
-    token: string,
-    formData: FormData
-): Promise<ActionResult> {
-    if (!(await validateCaptcha(token))) {
-        return {
-            message: "Failed captcha",
-            status: 0
-        };
-    }
+export async function signupAction(token: string, formData: FormData) {
+    // Validate captcha
+    await validateCaptcha(token);
 
+    // Validate form data with zod
     const { data: input, success } = signupSchema.safeParse({
         name: formData.get("name"),
         email: formData.get("email"),
@@ -90,12 +55,10 @@ export async function signupAction(
     });
 
     if (!success) {
-        return {
-            message: "Er is iets mis met de ontvangen gegevens, zijn alle velden ingevuld?",
-            status: 0,
-        }
+        throw new Error("Er is iets mis met de ontvangen gegevens, zijn alle velden ingevuld?");
     }
 
+    // Insert user into database
     const { error } = await supabase
         .from("user")
         .insert({
@@ -104,12 +67,10 @@ export async function signupAction(
         });
 
     if (error) {
-        return {
-            message: "We konden je account niet aanmaken. Misschien is de email al in gebruik.",
-            status: 0,
-        }
+        throw new Error("We konden je account niet aanmaken. Misschien is de email al in gebruik.");
     }
 
+    // Redirect to login page
     redirect("/inloggen");
 }
 
@@ -235,10 +196,14 @@ export async function updateAppointment(id: number, data: Record<string, unknown
 }
 
 export async function validateCaptcha(token: string) {
-    const recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
-    const recaptcha_secret = process.env.RECAPTCHA_SECRET_KEY;
-    const response = await fetch(`${recaptcha_url}?secret=${recaptcha_secret}&response=${token}`);
+    const secret = process.env.RECAPTCHA_SECRET_KEY;
+    const response = await fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`);
     const { data, success: isCorrectType } = CaptchaResponse.safeParse(await response.json());
+    const success = isCorrectType && data.success && data.score > 0.5;
 
-    return isCorrectType && data.success && data.score > 0.5;
+    if (!success) {
+        throw new Error("Je bent een robot");
+    }
+
+    return success;
 }

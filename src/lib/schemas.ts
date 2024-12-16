@@ -27,4 +27,5 @@ export const CaptchaResponse = z.object({
     challenge_ts: z.string(),
     hostname: z.string(),
     score: z.number(),
+    action: z.string().optional()
 });
