@@ -1,7 +1,7 @@
 "use client";
 
 import { appointmentSubmit, getAppointmentTimes, ActionResult } from "@/lib/actions";
-import { useTransition, useEffect, useState, useId, useCallback } from "react";
+import { useTransition, useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,21 +30,34 @@ declare global {
 export default function Appointment() {
     const router = useRouter();
     const session = useSession();
-    const [date, setDate] = useState<Date | undefined>(new Date());
+    const date = useRef<Date | undefined>(undefined);
     const [times, setTimes] = useState<string[]>();
     const [timesLoading, startTransition] = useTransition();
-
     const [result, setResult] = useState<ActionResult<z.infer<typeof appointmentSchema>>>();
     const [isLoading, setLoading] = useState(false);
-    const { executeRecaptcha } = useGoogleReCaptcha();
+    const {executeRecaptcha} = useGoogleReCaptcha();
 
-    useEffect(() => {
-        if (date) {
+    const setDate = (value: Date | undefined) => {
+        date.current = value;
+
+        if (value) {
             startTransition(async () => {
-                setTimes(await getAppointmentTimes(date, new Date()));
+                setTimes(await getAppointmentTimes(value, new Date()));
             });
         }
-    }, [date]);
+    }
+
+    const createAppointment = useCallback(async (formData: FormData) => {
+        if (!executeRecaptcha) return;
+        if (date.current) formData.set("date", date.current.toLocaleDateString("en-CA"));
+
+        setLoading(true);
+        const token = await executeRecaptcha();
+        setResult(await appointmentSubmit(token, formData));
+        setLoading(false);
+    }, [executeRecaptcha]);
+
+    useEffect(() => setDate(new Date()), []);
 
     useEffect(() => {
         if (session.status !== "loading" && !session.data) {
@@ -61,16 +74,6 @@ export default function Appointment() {
             });
         }
     }, [result]);
-
-    const createAppointment = useCallback(async (formData: FormData) => {
-        if (!executeRecaptcha) return;
-        if (date) formData.set("date", date.toLocaleDateString("en-CA"));
-
-        setLoading(true);
-        const token = await executeRecaptcha();
-        setResult(await appointmentSubmit(token, formData));
-        setLoading(false);
-    }, [executeRecaptcha]);
 
     return session.data && (
         <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 p-8">
@@ -93,7 +96,7 @@ export default function Appointment() {
                         <div className="flex flex-wrap gap-4">
                             <div className="flex-1">
                                 <DatePicker
-                                    selected={date}
+                                    selected={date.current}
                                     onSelect={setDate}
                                     mode="single"
                                     hidden={{ before: new Date() }}
