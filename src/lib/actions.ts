@@ -73,19 +73,15 @@ export async function appointmentSubmit(
 }
 
 export async function signupAction(
-    // _: ActionResult | null, 
-    formData: FormData,
-    token: string
+    token: string,
+    formData: FormData
 ): Promise<ActionResult> {
-
     if (!(await validateCaptcha(token))) {
         return {
             message: "Failed captcha",
             status: 0
         };
     }
-    console.log('hi')
-
 
     const { data: input, success } = signupSchema.safeParse({
         name: formData.get("name"),
@@ -95,7 +91,7 @@ export async function signupAction(
 
     if (!success) {
         return {
-            message: "Er is iets mis met de ontvangen data!",
+            message: "Er is iets mis met de ontvangen gegevens, zijn alle velden ingevuld?",
             status: 0,
         }
     }
@@ -106,8 +102,6 @@ export async function signupAction(
             ...input,
             password: await hash(input.password, 12),
         });
-    console.log('not failed')
-
 
     if (error) {
         return {
@@ -115,7 +109,6 @@ export async function signupAction(
             status: 0,
         }
     }
-
 
     redirect("/inloggen");
 }

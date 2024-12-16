@@ -1,7 +1,7 @@
 "use client";
 
 import { appointmentSubmit, getAppointmentTimes, ActionResult } from "@/lib/actions";
-import { useRef, useTransition, useEffect, useState } from "react";
+import { useRef, useTransition, useEffect, useState, useId } from "react";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,7 +20,7 @@ import Script from "next/script";
 import Link from "next/link";
 import { z } from "zod";
 import { appointmentSchema } from "@/lib/schemas";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 declare global {
     interface Window {
@@ -31,24 +31,22 @@ declare global {
 export default function Appointment() {
     const router = useRouter();
     const session = useSession();
-    const date = useRef<Date | undefined>(undefined);
+    const [date, setDate] = useState<Date | undefined>(new Date());
     const [times, setTimes] = useState<string[]>();
     const [timesLoading, startTransition] = useTransition();
-    const { toast } = useToast();
 
     const [result, setResult] = useState<ActionResult<z.infer<typeof appointmentSchema>>>();
     const [isLoading, setLoading] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
+    const submitID = useId();
 
-    const updateDate = (newDate: Date | undefined) => {
-        date.current = newDate;
-
-        if (newDate) {
+    useEffect(() => {
+        if (date) {
             startTransition(async () => {
-                setTimes(await getAppointmentTimes(newDate, new Date()));
+                setTimes(await getAppointmentTimes(date, new Date()));
             });
         }
-    }
+    }, [date]);
 
     useEffect(() => {
         if (session.status !== "loading" && !session.data) {
@@ -67,19 +65,19 @@ export default function Appointment() {
     }, [result]);
 
     useEffect(() => {
-        window.RecaptchaOnSubmit = async () => {
+        (window as any)[submitID] = async () => {
             if (!formRef.current) return;
 
             const formData = new FormData(formRef.current);
-            if (date.current) {
-                formData.set("date", date.current.toLocaleDateString("en-CA"));
+            if (date) {
+                formData.set("date", date.toLocaleDateString("en-CA"));
             }
 
             setLoading(true);
             setResult(await appointmentSubmit(formData));
             setLoading(false);
         };
-    }, []);
+    }, [date]);
 
     return session.data && (
         <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 p-8">
@@ -103,8 +101,8 @@ export default function Appointment() {
                         <div className="flex flex-wrap gap-4">
                             <div className="flex-1">
                                 <DatePicker
-                                    selected={date.current}
-                                    onSelect={updateDate}
+                                    selected={date}
+                                    onSelect={setDate}
                                     mode="single"
                                     hidden={{ before: new Date() }}
                                     required/>
@@ -135,11 +133,9 @@ export default function Appointment() {
                             className="w-full sm:w-auto g-recaptcha"
                             isPending={isLoading}
                             data-sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-                            data-callback="RecaptchaOnSubmit"
+                            data-callback={submitID}
                             data-action="submit"
-                        >
-                            Maak een afspraak
-                        </SubmitButton>
+                        >Maak een afspraak</SubmitButton>
                     </div>
                     <strong className="block font-normal text-center opacity-70">
                         {/* DO NOT REMOVE THIS! or else legal trouble */}
