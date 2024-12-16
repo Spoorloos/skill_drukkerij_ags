@@ -18,18 +18,11 @@ type ActionResult<T = unknown> = {
     data?: T;
 }
 
-export async function del() {
-    console.log('fdsnhfds')
-}
 
 export async function appointmentSubmit(
     token: string,
-    formData: Record<string, string>
+    formData: FormData
 ): Promise<ActionResult<z.infer<typeof appointmentSchema>>> {
-    console.log(formData);
-
-    console.log('successful');
-
     // Validate captcha
     if (!(await validateCaptcha(token))) {
         return {
@@ -49,9 +42,9 @@ export async function appointmentSubmit(
 
     // Validate form data with zod
     const { data: input, success } = appointmentSchema.safeParse({
-        description: formData.description,
-        date: formData.date,
-        time: formData.time,
+        description: formData.get("description"),
+        date: formData.get("date"),
+        time: formData.get("time"),
         user: user.id
     });
 
@@ -67,24 +60,29 @@ export async function appointmentSubmit(
         .from("appointment")
         .insert(input);
 
-    
-    // Refresh page when done
+
     return error
         ? {
-              message: "Er is een fout opgetreden en we hebben je afspraak niet kunnen registreren.",
-              status: 0
-          }
+            message: "Er is een fout opgetreden en we hebben je afspraak niet kunnen registreren.",
+            status: 0
+        }
         : {
-              message: "We hebben je afspraak geregistreerd!",
-              status: 1,
-              data: input
-          };
+            message: "We hebben je afspraak geregistreerd!",
+            status: 1,
+            data: input
+        }
 }
 
 export async function signupAction(
     _: ActionResult | null,
     formData: FormData
 ): Promise<ActionResult> {
+
+
+
+
+
+
     const { data: input, success } = signupSchema.safeParse({
         name: formData.get("name"),
         email: formData.get("email"),
@@ -238,9 +236,7 @@ export async function updateAppointment(id: number, data: Record<string, unknown
 
 export async function validateCaptcha(
     token: string,
-    // formData: Record<string, string>
 ) {
-    // console.log('Value of bruh:', formData['bruh']);
 
     const recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
     const recaptcha_secret = process.env.RECAPTCHA_SECRET_KEY;
