@@ -48,7 +48,7 @@ export default function Aanmelden() {
                     <Label htmlFor="password">Wachtwoord</Label>
                     <Input id="password" name="password" type="password" placeholder="wachtwoord123" minLength={8} maxLength={50} required />
                 </div>
-                <Link className="block underline text-blue-600 dark:text-blue-400 hover:opacity-75" href="/inloggen">Heb je al een account?</Link>
+                <Link className="inline-block link" href="/inloggen">Heb je al een account?</Link>
                 <SubmitButton className="w-full g-recaptcha" isPending={isPending}>Meld je aan</SubmitButton>
             </form>
         </main>

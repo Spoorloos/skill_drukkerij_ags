@@ -52,7 +52,7 @@ export default function Inloggen() {
                     <Label htmlFor="password">Wachtwoord</Label>
                     <Input id="password" name="password" type="password" placeholder="wachtwoord123" minLength={8} maxLength={50} required/>
                 </div>
-                <Link className="block underline text-blue-600 dark:text-blue-400 hover:opacity-75" href="/aanmelden">Heb je nog geen account?</Link>
+                <Link className="inline-block link" href="/aanmelden">Heb je nog geen account?</Link>
                 <SubmitButton className="w-full" isPending={isPending}>Log in</SubmitButton>
             </form>
         </main>
