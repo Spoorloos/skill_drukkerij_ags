@@ -95,7 +95,7 @@ export async function getUser() {
 export async function getUsers(filter?: string, page?: number, pageLength: number = 5) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
-        return;
+        throw Error("Je bent geen admin!");
     }
 
     let query = supabase
@@ -111,7 +111,7 @@ export async function getUsers(filter?: string, page?: number, pageLength: numbe
 export async function deleteUser(id: number) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
-        return;
+        throw Error("Je bent geen admin!");
     }
 
     return await supabase
@@ -123,12 +123,12 @@ export async function deleteUser(id: number) {
 export async function updateUser(id: number, data: Record<string, unknown>) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
-        return;
+        throw Error("Je bent geen admin!");
     }
 
     const { data: input, success } = userDataSchema.safeParse(data);
     if (!success) {
-        return;
+        throw Error("Er is een probleem met de data");
     }
 
     return await supabase
@@ -145,7 +145,7 @@ export async function updateUser(id: number, data: Record<string, unknown>) {
 export async function getAppointments(filter?: string, page?: number, pageLength: number = 5, start?: string, end?: string) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
-        return;
+        throw Error("Je bent geen admin!");
     }
 
     let query = supabase
@@ -165,7 +165,7 @@ export async function getAppointments(filter?: string, page?: number, pageLength
 export async function deleteAppointment(id: number) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
-        return;
+        throw Error("Je bent geen admin!");
     }
 
     return await supabase
@@ -177,13 +177,12 @@ export async function deleteAppointment(id: number) {
 export async function updateAppointment(id: number, data: Record<string, unknown>) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
-        return;
+        throw Error("Je bent geen admin!");
     }
 
-    const { data: input, success, error } = appointmentSchema.safeParse(data);
+    const { data: input, success } = appointmentSchema.safeParse(data);
     if (!success) {
-        console.log(error);
-        return;
+        throw Error("Er is een probleem met de data");
     }
 
     return await supabase

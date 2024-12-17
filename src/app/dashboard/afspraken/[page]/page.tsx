@@ -40,6 +40,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { DatePicker } from "@/components/ui/datepicker";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
 
 type Appointments = Awaited<ReturnType<typeof getAppointments>>;
 
@@ -56,7 +57,15 @@ export default function Afspraken() {
 
     const fetchAfspraken = () => {
         startTransition(async () => {
-            setData(await getAppointments(filter, page, PAGE_COUNT));
+            try {
+                setData(await getAppointments(filter, page, PAGE_COUNT));
+            } catch {
+                toast({
+                    variant: "destructive",
+                    title: "Uh oh! Er is iets mis gegaan.",
+                    description: "We konden de afspraken niet ophalen.",
+                });
+            }
         });
     }
 
@@ -105,7 +114,7 @@ export default function Afspraken() {
                             enableHiding: true,
                             enableResizing: false,
                             cell: ({ row }) => (
-                                <ActionDropdown
+                                <Actions
                                     appointment={row.original}
                                     refresh={fetchAfspraken}
                                     isLoading={isLoading || !data?.data}
@@ -137,13 +146,13 @@ type Appointment = {
     };
 }
 
-type ActionDropdown = Readonly<{
+type Actions = Readonly<{
     appointment: Appointment;
     refresh?: () => void;
     isLoading: boolean;
 }>;
 
-function ActionDropdown({ appointment, refresh, isLoading }: ActionDropdown) {
+function Actions({ appointment, refresh, isLoading }: Actions) {
     const date = useRef(appointment.date
         ? new Date(appointment.date)
         : new Date()
@@ -154,7 +163,15 @@ function ActionDropdown({ appointment, refresh, isLoading }: ActionDropdown) {
 
     function updateTimes() {
         startTransition(async () => {
-            setTimes(await getAppointmentTimes(date.current!, new Date()));
+            try {
+                setTimes(await getAppointmentTimes(date.current!, new Date()));
+            } catch {
+                toast({
+                    variant: "destructive",
+                    title: "Uh oh! Er is iets mis gegaan.",
+                    description: "We konden de beschikbare afspraak tijden niet ophalen.",
+                });
+            }
         });
     }
 
@@ -183,13 +200,27 @@ function ActionDropdown({ appointment, refresh, isLoading }: ActionDropdown) {
                             <DialogTitle>Afspraak aanpassen</DialogTitle>
                             <DialogDescription>Maak aanpassingen aan een afspraak en klik op opslaan als je klaar bent.</DialogDescription>
                         </DialogHeader>
-                        <form className="contents" action={formData => {
-                            updateAppointment(appointment.id, {
-                                user: formData.has("user") ? parseInt(formData.get("user")!.toString()) : appointment.user,
-                                date: date.current?.toLocaleDateString("en-CA") ?? appointment.date,
-                                time: formData.get("time") ?? appointment.time,
-                                description: formData.get("description") ?? appointment.description,
-                            }).then(refresh);
+                        <form className="contents" action={async formData => {
+                            try {
+                                await updateAppointment(appointment.id, {
+                                    user: formData.has("user") ? parseInt(formData.get("user")!.toString()) : appointment.user,
+                                    date: date.current?.toLocaleDateString("en-CA") ?? appointment.date,
+                                    time: formData.get("time") ?? appointment.time,
+                                    description: formData.get("description") ?? appointment.description,
+                                });
+                                toast({
+                                    title: "Success!",
+                                    description: "We hebben de afspraak aangepast.",
+                                });
+                            } catch {
+                                toast({
+                                    variant: "destructive",
+                                    title: "Uh oh! Er is iets mis gegaan.",
+                                    description: "We konden de afspraak niet aanpassen.",
+                                });
+                            } finally {
+                                refresh?.();
+                            }
                         }}>
                             <div className="space-y-2">
                                 <Label htmlFor="user-id">Gebruiker ID</Label>
@@ -265,7 +296,23 @@ function ActionDropdown({ appointment, refresh, isLoading }: ActionDropdown) {
                             <DialogClose asChild>
                                 <Button variant="secondary">Annuleren</Button>
                             </DialogClose>
-                            <Button variant="destructive" onClick={() => deleteAppointment(appointment.id).then(refresh)}>Verwijder</Button>
+                            <Button variant="destructive" onClick={async () => {
+                                try {
+                                    await deleteAppointment(appointment.id);
+                                    toast({
+                                        title: "Success!",
+                                        description: "We hebben de afspraak verwijdered.",
+                                    });
+                                } catch {
+                                    toast({
+                                        variant: "destructive",
+                                        title: "Uh oh! Er is iets mis gegaan.",
+                                        description: "We konden de afspraak niet verwijderen.",
+                                    });
+                                } finally {
+                                    refresh?.();
+                                }
+                            }}>Verwijder</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

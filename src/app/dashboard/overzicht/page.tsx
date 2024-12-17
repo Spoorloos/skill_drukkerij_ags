@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { dateWithoutTime } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/hooks/use-toast";
 
 type Appointments = Awaited<ReturnType<typeof getAppointments>>;
 
@@ -21,7 +22,15 @@ export default function Overzicht() {
 
     useEffect(() => {
         startTransition(async () => {
-            setData(await getAppointments());
+            try {
+                setData(await getAppointments());
+            } catch {
+                toast({
+                    variant: "destructive",
+                    title: "Uh oh! Er is iets mis gegaan.",
+                    description: "We konden de afspraken niet ophalen.",
+                });
+            }
         });
     }, []);
 

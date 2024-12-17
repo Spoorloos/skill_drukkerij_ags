@@ -33,6 +33,9 @@ import {
     TooltipTrigger,
     TooltipProvider,
 } from "@/components/ui/tooltip";
+import { toast } from "@/hooks/use-toast";
+
+type Users = Awaited<ReturnType<typeof getUsers>>;
 
 const PAGE_COUNT = 8;
 
@@ -43,11 +46,19 @@ export default function Gebruikers() {
     const filter = searchParams.get("filter") || undefined;
 
     const [ isLoading, startTransition ] = useTransition();
-    const [ data, setData ] = useState<Awaited<ReturnType<typeof getUsers>>>();
+    const [ data, setData ] = useState<Users>();
 
     const fetchUsers = () => {
         startTransition(async () => {
-            setData(await getUsers(filter, page, PAGE_COUNT));
+            try {
+                setData(await getUsers(filter, page, PAGE_COUNT));
+            } catch {
+                toast({
+                    variant: "destructive",
+                    title: "Uh oh! Er is iets mis gegaan.",
+                    description: "We konden de gebruikers niet ophalen.",
+                });
+            }
         });
     }
 
@@ -89,7 +100,7 @@ export default function Gebruikers() {
                             enableHiding: true,
                             enableResizing: false,
                             cell: ({ row }) => (
-                                <ActionDropdown
+                                <Actions
                                     user={row.original}
                                     refresh={fetchUsers}
                                     isLoading={isLoading || !data?.data}
@@ -110,13 +121,13 @@ export default function Gebruikers() {
     );
 }
 
-type ActionDropdown = Readonly<{
+type Actions = Readonly<{
     user: User;
     refresh?: () => void;
     isLoading: boolean;
 }>;
 
-function ActionDropdown({ user, refresh, isLoading }: ActionDropdown) {
+function Actions({ user, refresh, isLoading }: Actions) {
     return (
         <div className="flex flex-wrap justify-end gap-1 transition-opacity duration-100 opacity-0 size-full group-hover:opacity-100">
             <TooltipProvider
@@ -140,13 +151,27 @@ function ActionDropdown({ user, refresh, isLoading }: ActionDropdown) {
                             <DialogTitle>Gebruiker aanpassen</DialogTitle>
                             <DialogDescription>Maak aanpassingen aan een gebruiker's informatie en klik op opslaan als je klaar bent.</DialogDescription>
                         </DialogHeader>
-                        <form className="contents" action={formData => {
-                            updateUser(user.id, {
-                                name: formData.get("name"),
-                                email: formData.get("email"),
-                                password: formData.get("password") || undefined,
-                                role: formData.get("role"),
-                            }).then(refresh);
+                        <form className="contents" action={async formData => {
+                            try {
+                                await updateUser(user.id, {
+                                    name: formData.get("name"),
+                                    email: formData.get("email"),
+                                    password: formData.get("password") || undefined,
+                                    role: formData.get("role"),
+                                });
+                                toast({
+                                    title: "Success!",
+                                    description: "We hebben de gebruiker's informatie aangepast.",
+                                });
+                            } catch {
+                                toast({
+                                    variant: "destructive",
+                                    title: "Uh oh! Er is iets mis gegaan.",
+                                    description: "We konden de gebruiker's informatie niet aanpassen.",
+                                });
+                            } finally {
+                                refresh?.();
+                            }
                         }}>
                             <div className="space-y-2">
                                 <Label htmlFor="user-name">Naam</Label>
@@ -201,7 +226,23 @@ function ActionDropdown({ user, refresh, isLoading }: ActionDropdown) {
                             <DialogClose asChild>
                                 <Button variant="secondary">Annuleren</Button>
                             </DialogClose>
-                            <Button variant="destructive" onClick={() => deleteUser(user.id).then(refresh)}>Verwijder</Button>
+                            <Button variant="destructive" onClick={async () => {
+                                try {
+                                    await deleteUser(user.id);
+                                    toast({
+                                        title: "Success!",
+                                        description: "We hebben de gebruiker verwijdered.",
+                                    });
+                                } catch {
+                                    toast({
+                                        variant: "destructive",
+                                        title: "Uh oh! Er is iets mis gegaan.",
+                                        description: "We konden de gebruiker niet verwijderen.",
+                                    });
+                                } finally {
+                                    refresh?.();
+                                }
+                            }}>Verwijder</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
