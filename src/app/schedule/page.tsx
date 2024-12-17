@@ -1,20 +1,11 @@
 import { type Database } from "@/../database";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@supabase/supabase-js";
-
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs))
-}
-
-function dateToString(date: Date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
-}
 
 function dateWithoutTime(date: Date) {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
+
 const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
 export default async function Schedule() {
@@ -34,49 +25,56 @@ export default async function Schedule() {
         console.error(`Error fetching data ${error ?? ""}`);
         return;
     }
-    console.log(appointments);
 
     return (
-        <ol className="grid bg-blue-100" style={{
-            gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))`
-        }}>
+        <ul className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-4 p-4">
             {days.map((day, index) =>
-                <li className="flex flex-col gap-4 p-4" key={index}>
-                    <h3 className="text-lg font-bold">
-                        <time dateTime={dateWithoutTime(day)}>{day.toDateString().slice(0, 3)}</time>
-                    </h3>
-                    <ol className="contents">
+                <li className="flex flex-col gap-[inherit]" key={index}>
+                    <h2 className="text-2xl font-bold">
+                        <time dateTime={dateWithoutTime(day)}>
+                            {day.toLocaleDateString(undefined, { weekday: "short" })}
+                        </time>
+                    </h2>
+                    <ul className="contents">
                         {appointments
                             .filter(x => x.date === dateWithoutTime(day))
                             .map(appointment =>
-                                <li className="w-full p-6 mx-auto bg-white rounded-lg shadow-md" key={appointment.id}>
-                                    {/* <h4 className="mb-4 text-xl font-bold text-center text-gray-800">{appointment.id}</h4> */}
-                                    <h4 className="mb-2 text-xl text-center text-gray-600">
-                                        {/* <span className="font-semibold">Time: </span> */}
-                                        <time dateTime={`${appointment.date}T${appointment.time}:00`}>{appointment.time}</time>
-                                    </h4>
-                                    <p className="text-sm text-gray-600 break-words">
-                                        <span className="font-semibold">quantity: </span>
-                                        <span>{appointment.quantity}</span>
-                                    </p>
-                                    <p className="text-sm text-gray-600 break-words">
-                                        <span className="font-semibold">double_sided: </span>
-                                        <span>{appointment.double_sided}</span>
-                                    </p>
-                                    <p className="text-sm text-gray-600 break-words">
-                                        <span className="font-semibold">size: </span>
-                                        <span>{appointment.size}</span>
-                                    </p>
-                                    <p className="text-sm text-gray-600 break-words">
-                                        <span className="font-semibold">Description: </span>
-                                        <span>{appointment.description}</span>
-                                    </p>
+                                <li className="contents" key={appointment.id}>
+                                    <Card className="group cursor-pointer">
+                                        <CardHeader>
+                                            <CardTitle className="text-xl text-center">
+                                                <time dateTime={new Date(`${appointment.date} ${appointment.time}`).toISOString()}>
+                                                    {appointment.time}
+                                                </time>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="opacity-50 group-hover:opacity-100 transition-opacity duration-100">
+                                            <dl>
+                                                <div>
+                                                    <dt className="font-semibold inline">Aantal: </dt>
+                                                    <dd className="font-light inline">{appointment.quantity}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt className="font-semibold inline">Dubbelzijdig: </dt>
+                                                    <dd className="font-light inline">{appointment.double_sided ? "Ja" : "Nee"}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt className="font-semibold inline">Grootte: </dt>
+                                                    <dd className="font-light inline">{appointment.size}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt className="font-semibold inline">Beschrijving: </dt>
+                                                    <dd className="font-light inline break-words">{appointment.description}</dd>
+                                                </div>
+                                            </dl>
+                                        </CardContent>
+                                    </Card>
                                 </li>
                             )
                         }
-                    </ol>
+                    </ul>
                 </li>
             )}
-        </ol>
+        </ul>
     )
 }
