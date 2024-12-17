@@ -11,32 +11,32 @@ export type Database = {
     Tables: {
       appointment: {
         Row: {
-          appointment_status: boolean | null
           date: string
           description: string
           double_sided: boolean
           id: number
           quantity: number
+          size: string
           time: string
           user: number
         }
         Insert: {
-          appointment_status?: boolean | null
           date: string
           description: string
           double_sided?: boolean
           id?: number
           quantity?: number
+          size?: string
           time: string
           user: number
         }
         Update: {
-          appointment_status?: boolean | null
           date?: string
           description?: string
           double_sided?: boolean
           id?: number
           quantity?: number
+          size?: string
           time?: string
           user?: number
         }
