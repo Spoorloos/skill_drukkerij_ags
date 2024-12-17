@@ -142,7 +142,7 @@ export async function updateUser(id: number, data: Record<string, unknown>) {
         .eq("id", id);
 }
 
-export async function getAppointments(filter?: string, page?: number, pageLength: number = 5) {
+export async function getAppointments(filter?: string, page?: number, pageLength: number = 5, start?: string, end?: string) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
         return;
@@ -150,12 +150,14 @@ export async function getAppointments(filter?: string, page?: number, pageLength
 
     let query = supabase
         .from("appointment")
-        .select("id, user!inner(id, name), date, time, description", { count: "exact" })
+        .select("*, user!inner(id, name)", { count: "exact" })
         .order("date")
         .order("time");
 
     if (filter) query = query.ilike("user.name", `%${filter}%`);
     if (page) query = query.range((page - 1) * pageLength, page * pageLength - 1);
+    if (start) query = query.gte("date", start);
+    if (end) query = query.lte("date", end);
 
     return await query;
 }

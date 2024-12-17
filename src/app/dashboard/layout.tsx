@@ -1,6 +1,6 @@
 import { getUser } from "@/lib/actions";
 import { redirect } from "next/navigation";
-import { User, Calendar } from "lucide-react";
+import { User, Calendar, Pen } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import Sidebar from "@/components/Sidebar";
 
@@ -18,9 +18,14 @@ export default async function DashboardLayout({ children }: DashboardLayout) {
         <SidebarProvider>
             <Sidebar items={[
                 {
+                    title: "Overzicht",
+                    href: "/dashboard/overzicht",
+                    icon: <Calendar/>,
+                },
+                {
                     title: "Afspraken",
                     href: "/dashboard/afspraken",
-                    icon: <Calendar/>,
+                    icon: <Pen/>,
                 },
                 {
                     title: "Gebruikers",

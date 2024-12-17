@@ -11,3 +11,10 @@ export function getPages(current: number, count: number) {
     return Array.from({ length }, (_, i) => start + i);
 }
 
+export function dateWithoutTime(date: Date) {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
+
+export function random(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}

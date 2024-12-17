@@ -41,6 +41,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DatePicker } from "@/components/ui/datepicker";
 import { Textarea } from "@/components/ui/textarea";
 
+type Appointments = Awaited<ReturnType<typeof getAppointments>>;
+
 const PAGE_COUNT = 8;
 
 export default function Afspraken() {
@@ -50,7 +52,7 @@ export default function Afspraken() {
     const filter = searchParams.get("filter") || undefined;
 
     const [ isLoading, startTransition ] = useTransition();
-    const [ data, setData ] = useState<Awaited<ReturnType<typeof getAppointments>>>();
+    const [ data, setData ] = useState<Appointments>();
 
     const fetchAfspraken = () => {
         startTransition(async () => {

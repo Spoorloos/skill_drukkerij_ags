@@ -1,30 +1,29 @@
-import { type Database } from "@/../database";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { createClient } from "@supabase/supabase-js";
+"use client";
 
-function dateWithoutTime(date: Date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-}
+import { getAppointments } from "@/lib/actions";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { dateWithoutTime } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+type Appointments = Awaited<ReturnType<typeof getAppointments>>;
 
-export default async function Schedule() {
-    const days = Array.from({ length: 5 }, (_, i) => {
-        const day = new Date();
-        day.setDate(day.getDate() + i);
-        return day;
-    });
+export default function Overzicht() {
+    const [loading, startTransition] = useTransition();
+    const [data, setData] = useState<Appointments>();
+    const days = useMemo(() => {
+        return Array.from({ length: 4 }, (_, i) => {
+            const day = new Date();
+            day.setDate(day.getDate() + i);
+            return day;
+        });
+    }, []);
 
-    const { data: appointments, error } = await supabase
-        .from("appointment")
-        .select("*")
-        .gte("date", dateWithoutTime(days[0]))
-        .lte("date", dateWithoutTime(days[4]));
-
-    if (error || !appointments) {
-        console.error(`Error fetching data ${error ?? ""}`);
-        return;
-    }
+    useEffect(() => {
+        startTransition(async () => {
+            setData(await getAppointments());
+        });
+    }, []);
 
     return (
         <ul className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-4 p-4">
@@ -36,7 +35,11 @@ export default async function Schedule() {
                         </time>
                     </h2>
                     <ul className="contents">
-                        {appointments
+                        {(loading || !data?.data) ?
+                            Array.from({ length: 5 }, (_, i) =>
+                                <Skeleton className="h-48" key={i}/>
+                            )
+                        : data.data
                             .filter(x => x.date === dateWithoutTime(day))
                             .map(appointment =>
                                 <li className="contents" key={appointment.id}>
@@ -76,5 +79,5 @@ export default async function Schedule() {
                 </li>
             )}
         </ul>
-    )
+    );
 }
