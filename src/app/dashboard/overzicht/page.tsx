@@ -26,7 +26,7 @@ export default function Overzicht() {
     }, []);
 
     return (
-        <ul className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-4 p-4">
+        <ul className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-4">
             {days.map((day, index) =>
                 <li className="flex flex-col gap-[inherit]" key={index}>
                     <h2 className="text-2xl font-bold">

@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
     redirects: async () => [
         {
             source: "/dashboard",
-            destination: "/dashboard/afspraken",
+            destination: "/dashboard/overzicht",
             permanent: true,
         },
         {
