@@ -1,7 +1,7 @@
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState, useTransition, useRef } from "react";
+import { useParams, useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,11 +47,13 @@ type Appointments = Awaited<ReturnType<typeof getAppointments>>;
 const PAGE_COUNT = 8;
 
 export default function Afspraken() {
+    const router = useRouter();
     const params = useParams();
+    const pathName = usePathname();
     const searchParams = useSearchParams();
     const page = parseInt(String(params.page)) || 1;
-    const filter = searchParams.get("filter") || undefined;
 
+    const [ filter, setFilter ] = useState(searchParams.get("filter")?.toString());
     const [ isLoading, startTransition ] = useTransition();
     const [ data, setData ] = useState<Appointments>();
 
@@ -71,10 +73,24 @@ export default function Afspraken() {
 
     useEffect(fetchAfspraken, [ filter, page ]);
 
+    const handleSearch = (formData: FormData) => {
+        const filter = formData.get("filter")?.toString();
+        const newSearchParams = new URLSearchParams(searchParams);
+
+        if (filter) {
+            newSearchParams.set("filter", filter);
+        } else {
+            newSearchParams.delete("filter");
+        }
+
+        setFilter(filter);
+        router.replace(`${pathName}?${newSearchParams.toString()}`, { scroll: false });
+    }
+
     return (
         <>
             <h1 className="text-3xl font-bold">Afspraken</h1>
-            <form className="flex gap-4" action="/dashboard/afspraken">
+            <form className="flex gap-4" action={handleSearch}>
                 <Input className="max-w-sm" placeholder="Filter op gebruiker naam" name="filter" defaultValue={filter}/>
                 <Button type="submit">Filter</Button>
             </form>

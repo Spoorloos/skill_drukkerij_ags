@@ -1,5 +1,7 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+const dateFormatter = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -12,7 +14,7 @@ export function getPages(current: number, count: number) {
 }
 
 export function dateWithoutTime(date: Date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    return dateFormatter.format(date);
 }
 
 export function random(min: number, max: number) {

@@ -3,7 +3,7 @@
 import DataTable from "@/components/DataTable";
 import { useEffect, useState, useTransition } from "react";
 import { getUsers, deleteUser, updateUser } from "@/lib/actions";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter, usePathname } from "next/navigation";
 import { type User } from "next-auth";
 import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,13 @@ type Users = Awaited<ReturnType<typeof getUsers>>;
 const PAGE_COUNT = 8;
 
 export default function Gebruikers() {
+    const router = useRouter();
     const params = useParams();
+    const pathName = usePathname();
     const searchParams = useSearchParams();
     const page = parseInt(String(params.page)) || 1;
-    const filter = searchParams.get("filter") || undefined;
 
+    const [ filter, setFilter ] = useState(searchParams.get("filter")?.toString());
     const [ isLoading, startTransition ] = useTransition();
     const [ data, setData ] = useState<Users>();
 
@@ -64,10 +66,24 @@ export default function Gebruikers() {
 
     useEffect(fetchUsers, [ filter, page ]);
 
+    const handleSearch = (formData: FormData) => {
+        const filter = formData.get("filter")?.toString();
+        const newSearchParams = new URLSearchParams(searchParams);
+
+        if (filter) {
+            newSearchParams.set("filter", filter);
+        } else {
+            newSearchParams.delete("filter");
+        }
+
+        setFilter(filter);
+        router.replace(`${pathName}?${newSearchParams.toString()}`, { scroll: false });
+    }
+
     return (
         <>
             <h1 className="text-3xl font-bold">Gebruikers</h1>
-            <form className="flex gap-4" action="/dashboard/gebruikers">
+            <form className="flex gap-4" action={handleSearch}>
                 <Input className="max-w-sm" placeholder="Filter op naam en email" name="filter" defaultValue={filter}/>
                 <Button type="submit">Filter</Button>
             </form>
