@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition, useRef } from "react";
-import { useParams, useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,19 +41,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DatePicker } from "@/components/ui/datepicker";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import { useParam } from "@/hooks/use-param";
 
 type Appointments = Awaited<ReturnType<typeof getAppointments>>;
 
 const PAGE_COUNT = 8;
 
 export default function Afspraken() {
-    const router = useRouter();
     const params = useParams();
-    const pathName = usePathname();
-    const searchParams = useSearchParams();
     const page = parseInt(String(params.page)) || 1;
-
-    const [ filter, setFilter ] = useState(searchParams.get("filter")?.toString());
+    const [ filter, setFilter ] = useParam("filter");
     const [ isLoading, startTransition ] = useTransition();
     const [ data, setData ] = useState<Appointments>();
 
@@ -74,17 +71,7 @@ export default function Afspraken() {
     useEffect(fetchAfspraken, [ filter, page ]);
 
     const handleSearch = (formData: FormData) => {
-        const filter = formData.get("filter")?.toString();
-        const newSearchParams = new URLSearchParams(searchParams);
-
-        if (filter) {
-            newSearchParams.set("filter", filter);
-        } else {
-            newSearchParams.delete("filter");
-        }
-
-        setFilter(filter);
-        router.replace(`${pathName}?${newSearchParams.toString()}`, { scroll: false });
+        setFilter(formData.get("filter")?.toString());
     }
 
     return (
