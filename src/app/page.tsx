@@ -18,6 +18,7 @@ import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { Input } from "@/components/ui/input";
 
 const timeFormatOptions: Intl.DateTimeFormatOptions = {
     weekday: "long",
@@ -33,7 +34,7 @@ export default function Appointment() {
     const date = useRef<Date | undefined>(undefined);
     const [times, setTimes] = useState<string[]>();
     const [timesLoading, startTransition] = useTransition();
-    const {executeRecaptcha} = useGoogleReCaptcha();
+    const { executeRecaptcha } = useGoogleReCaptcha();
 
     const [data, setData] = useState<FormData>();
     const [error, setError] = useState<Error>();
@@ -90,7 +91,7 @@ export default function Appointment() {
                 <h1 className="text-3xl font-bold text-center">Je afspraak is aangemaakt</h1>
                 <p className="text-center">
                     Je wordt <strong>{new Date(`${data.get("date")} ${data.get("time")}`).toLocaleString(undefined, timeFormatOptions)}</strong> bij (onze locatie) verwacht.
-                    <br/>
+                    <br />
                     Je krijgt binnen enkele minuten een bevestigings email. Je kunt deze pagina nu sluiten.
                 </p>
             </> : <>
@@ -98,7 +99,46 @@ export default function Appointment() {
                 <form className="space-y-4 w-[clamp(10rem,70vw,30rem)]" action={createAppointment}>
                     <div className="space-y-2">
                         <Label htmlFor="description">Beschrijving</Label>
-                        <Textarea className="min-h-48" id="description" name="description" placeholder="Leg uitgebreid uit wat je wilt afdrukken" maxLength={1000} required/>
+                        <Textarea className="min-h-48" id="description" name="description" placeholder="Leg uitgebreid uit wat je wilt afdrukken" maxLength={1000} required />
+                    </div>
+                    <div className="flex gap-4 flex-wrap">
+                        <div className="space-y-2 flex-1 basis-32">
+                            <Label htmlFor="quantity" className="block">Aantal</Label>
+                            <Input defaultValue="1" min="0" max="10000" name="quantity" id="quantity" type="number" required/>
+                        </div>
+                        <div className="space-y-2 flex-1 basis-32">
+                            <Label htmlFor="doublesided" className="block">Dubbelzijdig</Label>
+                            <Select name="doublesided" defaultValue="false" required>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecteer een waarde" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="false">Nee</SelectItem>
+                                    <SelectItem value="true">Ja</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2 flex-1 basis-32">
+                            <Label htmlFor="size" className="block">Formaat</Label>
+                            <Select name="size" defaultValue="A4" required>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecteer een waarde"/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="A0">A0 <small>(841 x 1189 mm)</small></SelectItem>
+                                    <SelectItem value="A1">A1 <small>(594 x 841 mm)</small></SelectItem>
+                                    <SelectItem value="A2">A2 <small>(420 x 594 mm)</small></SelectItem>
+                                    <SelectItem value="A3">A3 <small>(297 x 420 mm)</small></SelectItem>
+                                    <SelectItem value="A4">A4 <small>(297 x 210 mm)</small></SelectItem>
+                                    <SelectItem value="A5">A5 <small>(148 x 210 mm)</small></SelectItem>
+                                    <SelectItem value="A6">A6 <small>(105 x 148 mm)</small></SelectItem>
+                                    <SelectItem value="A7">A7 <small>(74 x 105 mm)</small></SelectItem>
+                                    <SelectItem value="A8">A8 <small>(52 x 72 mm)</small></SelectItem>
+                                    <SelectItem value="A9">A9 <small>(37 x 52 mm)</small></SelectItem>
+                                    <SelectItem value="A10">A10 <small>(26 x 37 mm)</small></SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                     <div className="space-y-2">
                         <Label className="block">Dag en tijd</Label>
@@ -109,18 +149,18 @@ export default function Appointment() {
                                     onSelect={setDate}
                                     mode="single"
                                     hidden={{ before: new Date() }}
-                                    required/>
+                                    required />
                             </div>
                             <div className="flex-1">
                                 {(timesLoading || !times) ? (
-                                    <Skeleton className="size-full"/>
+                                    <Skeleton className="size-full" />
                                 ) : (
                                     <Select name="time" disabled={times.length < 1} required>
                                         <SelectTrigger>
                                             <SelectValue placeholder={times.length < 1
                                                 ? "Geen tijden op deze dag"
                                                 : "Selecteer een tijd"
-                                            }/>
+                                            } />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {times.map((time, index) =>

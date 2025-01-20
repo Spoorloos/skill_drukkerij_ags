@@ -22,23 +22,28 @@ export async function appointmentSubmit(token: string, formData: FormData) {
     }
 
     // Validate form data with zod
-    const { data: input, success } = appointmentSchema.safeParse({
+    const { data: input, success, error: zodError } = appointmentSchema.safeParse({
         description: formData.get("description"),
         date: formData.get("date"),
         time: formData.get("time"),
-        user: user.id
+        quantity: formData.get("quantity"),
+        doublesided: formData.get("doublesided"),
+        size: formData.get("size"),
+        user: user.id,
     });
 
     if (!success) {
-        throw new Error("Er is een probleem met de ingevulde data, zijn alle velden ingevuld?")
+        console.log(zodError);
+        throw new Error("Er is een probleem met de ingevulde data, zijn alle velden ingevuld?");
     }
 
     // Insert appointment into database with supabase
-    const { error } = await supabase
+    const { error: databaseError } = await supabase
         .from("appointment")
         .insert(input);
 
-    if (error) {
+    if (databaseError) {
+        console.log(databaseError);
         throw new Error("Er is een fout opgetreden en we hebben je afspraak niet kunnen registreren.");
     }
 }

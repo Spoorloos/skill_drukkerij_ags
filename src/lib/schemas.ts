@@ -5,6 +5,9 @@ export const appointmentSchema = z.object({
     date: z.string().date(),
     time: z.string().time(),
     user: z.number().nonnegative(),
+    quantity: z.coerce.number().nonnegative().max(10000),
+    doublesided: z.coerce.boolean(),
+    size: z.enum(["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10"]),
 });
 
 export const loginSchema = z.object({
