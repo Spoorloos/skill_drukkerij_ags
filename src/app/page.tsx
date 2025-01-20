@@ -86,12 +86,12 @@ export default function Appointment() {
     }, [error]);
 
     return session.data && (
-        <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 p-8">
+        <main className="flex-1 flex flex-col items-center justify-center gap-4 p-8">
             {data ? <>
                 <h1 className="text-3xl font-bold text-center">Je afspraak is aangemaakt</h1>
                 <p className="text-center">
                     Je wordt <strong>{new Date(`${data.get("date")} ${data.get("time")}`).toLocaleString(undefined, timeFormatOptions)}</strong> bij (onze locatie) verwacht.
-                    <br />
+                    <br/>
                     Je krijgt binnen enkele minuten een bevestigings email. Je kunt deze pagina nu sluiten.
                 </p>
             </> : <>
@@ -99,7 +99,7 @@ export default function Appointment() {
                 <form className="space-y-4 w-[clamp(10rem,70vw,30rem)]" action={createAppointment}>
                     <div className="space-y-2">
                         <Label htmlFor="description">Beschrijving</Label>
-                        <Textarea className="min-h-48" id="description" name="description" placeholder="Leg uitgebreid uit wat je wilt afdrukken" maxLength={1000} required />
+                        <Textarea className="min-h-48" id="description" name="description" placeholder="Leg uitgebreid uit wat je wilt afdrukken" maxLength={1000} required/>
                     </div>
                     <div className="flex gap-4 flex-wrap">
                         <div className="space-y-2 flex-1 basis-32">
@@ -110,7 +110,7 @@ export default function Appointment() {
                             <Label htmlFor="doublesided" className="block">Dubbelzijdig</Label>
                             <Select name="doublesided" defaultValue="false" required>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Selecteer een waarde" />
+                                    <SelectValue placeholder="Selecteer een waarde"/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="false">Nee</SelectItem>
@@ -140,40 +140,39 @@ export default function Appointment() {
                             </Select>
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label className="block">Dag en tijd</Label>
-                        <div className="flex flex-wrap gap-4">
-                            <div className="flex-1">
-                                <DatePicker
-                                    selected={date.current}
-                                    onSelect={setDate}
-                                    mode="single"
-                                    hidden={{ before: new Date() }}
-                                    required />
-                            </div>
-                            <div className="flex-1">
-                                {(timesLoading || !times) ? (
-                                    <Skeleton className="size-full" />
-                                ) : (
-                                    <Select name="time" disabled={times.length < 1} required>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder={times.length < 1
-                                                ? "Geen tijden op deze dag"
-                                                : "Selecteer een tijd"
-                                            } />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {times.map((time, index) =>
-                                                <SelectItem value={time} key={index}>{time.slice(0, 5)}</SelectItem>
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            </div>
+                    <div className="flex flex-wrap gap-4">
+                        <div className="flex-1 space-y-2">
+                            <Label className="block">Datum</Label>
+                            <DatePicker
+                                selected={date.current}
+                                onSelect={setDate}
+                                mode="single"
+                                hidden={{ before: new Date() }}
+                                required/>
+                        </div>
+                        <div className="flex-1 space-y-2">
+                            <Label className="block" htmlFor="time">Tijd</Label>
+                            {(timesLoading || !times) ? (
+                                <Skeleton className="size-full"/>
+                            ) : (
+                                <Select name="time" disabled={times.length < 1} required>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={times.length < 1
+                                            ? "Geen tijden op deze dag"
+                                            : "Selecteer een tijd"
+                                        }/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {times.map((time, index) =>
+                                            <SelectItem value={time} key={index}>{time.slice(0, 5)}</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                            )}
                         </div>
                     </div>
                     <div className="text-end">
-                        <SubmitButton className="w-full sm:w-auto g-recaptcha" isPending={isLoading}>Maak een afspraak</SubmitButton>
+                        <SubmitButton className="w-full sm:w-auto" isPending={isLoading}>Maak een afspraak</SubmitButton>
                     </div>
                 </form>
             </>}

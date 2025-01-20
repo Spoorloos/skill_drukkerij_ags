@@ -41,7 +41,7 @@ export default function Inloggen() {
     }
 
     return (
-        <main className="fixed inset-0 flex flex-col items-center justify-center gap-4 p-8">
+        <main className="flex-1 flex flex-col items-center justify-center gap-4 p-8">
             <h1 className="text-3xl font-bold">Inloggen</h1>
             <form className="w-full max-w-sm space-y-4" action={loginAction}>
                 <div className="space-y-2">
