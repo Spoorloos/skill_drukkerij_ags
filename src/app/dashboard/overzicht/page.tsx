@@ -68,7 +68,7 @@ export default function Overzicht() {
                                                 </div>
                                                 <div>
                                                     <dt className="font-semibold inline">Dubbelzijdig: </dt>
-                                                    <dd className="font-light inline">{appointment.double_sided ? "Ja" : "Nee"}</dd>
+                                                    <dd className="font-light inline">{appointment.doublesided ? "Ja" : "Nee"}</dd>
                                                 </div>
                                                 <div>
                                                     <dt className="font-semibold inline">Grootte: </dt>
