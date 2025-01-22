@@ -104,7 +104,7 @@ export default function Appointment() {
                     <div className="flex gap-4 flex-wrap">
                         <div className="space-y-2 flex-1 basis-32">
                             <Label htmlFor="quantity" className="block">Aantal</Label>
-                            <Input defaultValue="1" min="0" max="10000" name="quantity" id="quantity" type="number" required/>
+                            <Input defaultValue="1" min="1" max="10000" name="quantity" id="quantity" type="number" required/>
                         </div>
                         <div className="space-y-2 flex-1 basis-32">
                             <Label htmlFor="doublesided" className="block">Dubbelzijdig</Label>

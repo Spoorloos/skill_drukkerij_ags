@@ -13,30 +13,30 @@ export type Database = {
         Row: {
           date: string
           description: string
-          double_sided: boolean
+          doublesided: boolean
           id: number
           quantity: number
-          size: string
+          size: Database["public"]["Enums"]["paper format"]
           time: string
           user: number
         }
         Insert: {
           date: string
           description: string
-          double_sided?: boolean
+          doublesided?: boolean
           id?: number
           quantity?: number
-          size?: string
+          size?: Database["public"]["Enums"]["paper format"]
           time: string
           user: number
         }
         Update: {
           date?: string
           description?: string
-          double_sided?: boolean
+          doublesided?: boolean
           id?: number
           quantity?: number
-          size?: string
+          size?: Database["public"]["Enums"]["paper format"]
           time?: string
           user?: number
         }
@@ -90,6 +90,18 @@ export type Database = {
       }
     }
     Enums: {
+      "paper format":
+        | "A0"
+        | "A1"
+        | "A2"
+        | "A3"
+        | "A4"
+        | "A5"
+        | "A6"
+        | "A7"
+        | "A8"
+        | "A9"
+        | "A10"
       role: "Admin" | "Gebruiker"
     }
     CompositeTypes: {

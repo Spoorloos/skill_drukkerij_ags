@@ -4,9 +4,9 @@ export const appointmentSchema = z.object({
     description: z.string().min(1).max(1000),
     date: z.string().date(),
     time: z.string().time(),
-    user: z.number().nonnegative(),
+    user: z.coerce.number().nonnegative(),
     quantity: z.coerce.number().nonnegative().max(10000),
-    doublesided: z.coerce.boolean(),
+    doublesided: z.enum(["true", "false"]).transform((value) => value === "true"),
     size: z.enum(["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10"]),
 });
 

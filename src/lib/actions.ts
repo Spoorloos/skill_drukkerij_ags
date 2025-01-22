@@ -179,25 +179,22 @@ export async function deleteAppointment(id: number) {
         .eq("id", id);
 }
 
-export async function updateAppointment(id: number, data: Record<string, unknown>) {
+export async function updateAppointment(id: number, formData: FormData) {
     const user = await getUser();
     if (!user || user.role !== "Admin") {
         throw Error("Je bent geen admin!");
     }
 
-    const { data: input, success } = appointmentSchema.safeParse(data);
+    const input = Object.fromEntries(formData);
+    const { data, success } = appointmentSchema.partial().safeParse(input);
+
     if (!success) {
         throw Error("Er is een probleem met de data");
     }
 
     return await supabase
         .from("appointment")
-        .update({
-            user: input.user,
-            date: input.date,
-            time: input.time,
-            description: input.description,
-        })
+        .update(data)
         .eq("id", id);
 }
 
