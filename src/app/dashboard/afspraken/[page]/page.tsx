@@ -97,12 +97,24 @@ export default function Afspraken() {
                             header: "Gebruiker",
                         },
                         {
+                            accessorKey: "date",
+                            header: "Datum",
+                        },
+                        {
                             accessorFn: ({ time }) => time.slice(0,5),
                             header: "Tijd",
                         },
                         {
-                            accessorKey: "date",
-                            header: "Datum",
+                            accessorKey: "quantity",
+                            header: "Aantal",
+                        },
+                        {
+                            accessorKey: "size",
+                            header: "Formaat",
+                        },
+                        {
+                            accessorFn: ({ doublesided }) => doublesided ? "Ja" : "Nee",
+                            header: "Dubbelzijdig",
                         },
                         {
                             accessorFn: ({ description }) => {
