@@ -153,7 +153,7 @@ export default function Appointment() {
                         <div className="flex-1 space-y-2">
                             <Label className="block" htmlFor="time">Tijd</Label>
                             {(timesLoading || !times) ? (
-                                <Skeleton className="size-full"/>
+                                <Skeleton className="w-full h-9"/>
                             ) : (
                                 <Select name="time" disabled={times.length < 1} required>
                                     <SelectTrigger>
