@@ -58,12 +58,14 @@ export default function Afspraken() {
         startTransition(async () => {
             try {
                 setData(await getAppointments(filter, page, PAGE_COUNT));
-            } catch {
-                toast({
-                    variant: "destructive",
-                    title: "Uh oh! Er is iets mis gegaan.",
-                    description: "We konden de afspraken niet ophalen.",
-                });
+            } catch (error) {
+                if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+                    toast({
+                        variant: "destructive",
+                        title: "Uh oh! Er is iets mis gegaan.",
+                        description: "We konden de afspraken niet ophalen.",
+                    });
+                }
             }
         });
     }
@@ -183,12 +185,14 @@ function Actions({ appointment, refresh, isLoading }: Actions) {
         startTransition(async () => {
             try {
                 setTimes(await getAppointmentTimes(date.current!, new Date()));
-            } catch {
-                toast({
-                    variant: "destructive",
-                    title: "Uh oh! Er is iets mis gegaan.",
-                    description: "We konden de beschikbare afspraak tijden niet ophalen.",
-                });
+            } catch (error) {
+                if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+                    toast({
+                        variant: "destructive",
+                        title: "Uh oh! Er is iets mis gegaan.",
+                        description: "We konden de beschikbare afspraak tijden niet ophalen.",
+                    });
+                }
             }
         });
     }
@@ -226,12 +230,14 @@ function Actions({ appointment, refresh, isLoading }: Actions) {
                                     title: "Success!",
                                     description: "We hebben de afspraak aangepast.",
                                 });
-                            } catch {
-                                toast({
-                                    variant: "destructive",
-                                    title: "Uh oh! Er is iets mis gegaan.",
-                                    description: "We konden de afspraak niet aanpassen.",
-                                });
+                            } catch (error) {
+                                if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+                                    toast({
+                                        variant: "destructive",
+                                        title: "Uh oh! Er is iets mis gegaan.",
+                                        description: "We konden de afspraak niet aanpassen.",
+                                    });
+                                }
                             } finally {
                                 refresh?.();
                             }
@@ -358,12 +364,14 @@ function Actions({ appointment, refresh, isLoading }: Actions) {
                                         title: "Success!",
                                         description: "We hebben de afspraak verwijdered.",
                                     });
-                                } catch {
-                                    toast({
-                                        variant: "destructive",
-                                        title: "Uh oh! Er is iets mis gegaan.",
-                                        description: "We konden de afspraak niet verwijderen.",
-                                    });
+                                } catch (error) {
+                                    if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+                                        toast({
+                                            variant: "destructive",
+                                            title: "Uh oh! Er is iets mis gegaan.",
+                                            description: "We konden de afspraak niet verwijderen.",
+                                        });
+                                    }
                                 } finally {
                                     refresh?.();
                                 }

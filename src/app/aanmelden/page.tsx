@@ -20,7 +20,7 @@ export default function Aanmelden() {
             setPending(true);
             await signupAction(await executeRecaptcha("login"), formData);
         } catch (error) {
-            if (error instanceof Error) {
+            if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
                 toast({
                     variant: "destructive",
                     title: "Uh oh! Er is iets mis gegaan.",

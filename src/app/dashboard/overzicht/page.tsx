@@ -24,12 +24,14 @@ export default function Overzicht() {
         startTransition(async () => {
             try {
                 setData(await getAppointments());
-            } catch {
-                toast({
-                    variant: "destructive",
-                    title: "Uh oh! Er is iets mis gegaan.",
-                    description: "We konden de afspraken niet ophalen.",
-                });
+            } catch (error) {
+                if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+                    toast({
+                        variant: "destructive",
+                        title: "Uh oh! Er is iets mis gegaan.",
+                        description: "We konden de afspraken niet ophalen.",
+                    });
+                }
             }
         });
     }, []);

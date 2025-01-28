@@ -59,7 +59,7 @@ export default function Appointment() {
             await appointmentSubmit(await executeRecaptcha("appointment"), formData);
             setData(formData);
         } catch (error) {
-            if (error instanceof Error) {
+            if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
                 setError(error);
             }
         } finally {

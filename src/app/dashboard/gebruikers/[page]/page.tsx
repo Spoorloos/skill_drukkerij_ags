@@ -51,12 +51,14 @@ export default function Gebruikers() {
         startTransition(async () => {
             try {
                 setData(await getUsers(filter, page, PAGE_COUNT));
-            } catch {
-                toast({
-                    variant: "destructive",
-                    title: "Uh oh! Er is iets mis gegaan.",
-                    description: "We konden de gebruikers niet ophalen.",
-                });
+            } catch (error) {
+                if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+                    toast({
+                        variant: "destructive",
+                        title: "Uh oh! Er is iets mis gegaan.",
+                        description: "We konden de gebruikers niet ophalen.",
+                    });
+                }
             }
         });
     }
@@ -166,12 +168,14 @@ function Actions({ user, refresh, isLoading }: Actions) {
                                     title: "Success!",
                                     description: "We hebben de gebruiker's informatie aangepast.",
                                 });
-                            } catch {
-                                toast({
-                                    variant: "destructive",
-                                    title: "Uh oh! Er is iets mis gegaan.",
-                                    description: "We konden de gebruiker's informatie niet aanpassen.",
-                                });
+                            } catch (error) {
+                                if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+                                    toast({
+                                        variant: "destructive",
+                                        title: "Uh oh! Er is iets mis gegaan.",
+                                        description: "We konden de gebruiker's informatie niet aanpassen.",
+                                    });
+                                }
                             } finally {
                                 refresh?.();
                             }
@@ -236,12 +240,14 @@ function Actions({ user, refresh, isLoading }: Actions) {
                                         title: "Success!",
                                         description: "We hebben de gebruiker verwijdered.",
                                     });
-                                } catch {
-                                    toast({
-                                        variant: "destructive",
-                                        title: "Uh oh! Er is iets mis gegaan.",
-                                        description: "We konden de gebruiker niet verwijderen.",
-                                    });
+                                } catch (error) {
+                                    if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+                                        toast({
+                                            variant: "destructive",
+                                            title: "Uh oh! Er is iets mis gegaan.",
+                                            description: "We konden de gebruiker niet verwijderen.",
+                                        });
+                                    }
                                 } finally {
                                     refresh?.();
                                 }
