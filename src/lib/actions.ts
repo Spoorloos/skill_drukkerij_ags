@@ -201,10 +201,11 @@ export async function updateAppointment(id: number, formData: FormData) {
 export async function validateCaptcha(token: string) {
     const secret = process.env.RECAPTCHA_SECRET_KEY;
     const response = await fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`);
-    const { data, success: isCorrectType } = CaptchaResponse.safeParse(await response.json());
+    const { data, success: isCorrectType, error } = CaptchaResponse.safeParse(await response.json());
     const success = isCorrectType && data.success && data.score > 0.5;
 
     if (!success) {
+        console.log(error);
         throw new Error("Je bent een robot");
     }
 
